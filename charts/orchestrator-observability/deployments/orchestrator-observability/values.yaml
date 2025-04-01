@@ -1,0 +1,1067 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# This is to enable the dependencies.
+import:
+  loki:
+    enabled: true
+  minio:
+    enabled: false
+  mimir:
+    enabled: true
+  otel-operator:
+    enabled: false
+  otel:
+    enabled: true
+  grafana:
+    enabled: true
+  kube-prometheus-stack:
+    enabled: false
+  tempo:
+    enabled: false
+
+#############
+# Prometheus
+############
+kube-prometheus-stack:
+  crds:
+    enabled: false
+  prometheusOperator:
+    enabled: true
+    admissionWebhooks:
+      enabled: false
+    tls:
+      enabled: false
+  kubeletService:
+    enabled: false
+  nodeExporter:
+    enabled: false
+  prometheus-node-exporter:
+    prometheus:
+      monitor:
+        enabled: false
+  kubeStateMetrics:
+    enabled: true
+  kube-state-metrics:
+    prometheus:
+      monitor:
+        enabled: true
+  grafana:
+    enabled: false
+  kubeProxy:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeEtcd:
+    enabled: false
+  coreDns:
+    enabled: false
+  kubeControllerManager:
+    enabled: false
+  kubelet:
+    enabled: false
+  kubeApiServer:
+    enabled: false
+  kubernetesServiceMonitors:
+    enabled: false
+  alertmanager:
+    enabled: false
+  defaultRules:
+    create: false
+  prometheus:
+    agentMode: true
+    enabled: true
+    prometheusSpec:
+      ruleSelectorNilUsesHelmValues: false
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+      probeSelectorNilUsesHelmValues: false
+      retention: 24h
+      scrapeInterval: "60s"
+      evaluationInterval: "60s"
+      remoteWrite:
+        - name: orchestrator-admin
+          url: "http://orchestrator-observability-mimir-gateway:8181/api/v1/push"
+          headers:
+            "X-Scope-OrgID": 'orchestrator-system'
+
+opentelemetry-operator:
+  admissionWebhooks:
+    create: false
+  manager:
+    targetAllocatorImage:
+      repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
+      tag: v0.116.0
+    securityContext:
+      runAsNonRoot: true
+      allowPrivilegesEscalation: false
+    env:
+      ENABLE_WEBHOOKS: "false"
+
+#############
+#  OpenTelemetry Daemonset - Runs on every node
+############
+opentelemetry-collector-daemonset:
+  mode: daemonset
+  image:
+    repository: otel/opentelemetry-collector-contrib
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 1500m
+      memory: 512Mi
+  command:
+    name: otelcol-contrib
+  clusterRole:
+    rules:
+      # Only needed if you are using extra_metadata_labels or
+      # are collecting the request/limit utilization metrics
+      - apiGroups: [ "" ]
+        resources: [ "nodes/proxy" ]
+        verbs: [ "get" ]
+  securityContext:
+    privileged: false
+  presets:
+    kubernetesAttributes:
+      enabled: true
+    kubeletMetrics:
+      enabled: true
+    logsCollection:
+      enabled: true
+  config:
+    extensions:
+      health_check:
+        endpoint: "0.0.0.0:13133"
+    receivers:
+      filelog:
+        exclude:
+          - /var/log/pods/orch-platform_orchestrator-observability-opentelemetry-collector-daemonset*_*/opentelemetry-collector-daemonset/*.log
+        include:
+          - /var/log/pods/*/*/*.log
+        include_file_name: false
+        include_file_path: true
+        operators:
+          - id: get-format
+            routes:
+              - expr: body matches "^\\{"
+                output: parser-docker
+              - expr: body matches "^[^ Z]+ "
+                output: parser-crio
+              - expr: body matches "^[^ Z]+Z"
+                output: parser-containerd
+            type: router
+          - id: parser-crio
+            regex: ^(?P<time>[^ Z]+) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$
+            timestamp:
+              layout: 2006-01-02T15:04:05.999999999Z07:00
+              layout_type: gotime
+              parse_from: attributes.time
+            type: regex_parser
+          - combine_field: attributes.log
+            combine_with: ""
+            id: crio-recombine
+            is_last_entry: attributes.logtag == 'F'
+            max_log_size: 102400
+            output: extract_metadata_from_filepath
+            source_identifier: attributes["log.file.path"]
+            type: recombine
+          - id: parser-containerd
+            regex: ^(?P<time>[^ ^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$
+            timestamp:
+              layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+              parse_from: attributes.time
+            type: regex_parser
+          - combine_field: attributes.log
+            combine_with: ""
+            id: containerd-recombine
+            is_last_entry: attributes.logtag == 'F'
+            max_log_size: 102400
+            output: extract_metadata_from_filepath
+            source_identifier: attributes["log.file.path"]
+            type: recombine
+          - id: parser-docker
+            output: extract_metadata_from_filepath
+            timestamp:
+              layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+              parse_from: attributes.time
+            type: json_parser
+          - id: extract_metadata_from_filepath
+            parse_from: attributes["log.file.path"]
+            regex: ^.*\/(?P<namespace>[^_]+)_(?P<pod_name>[^_]+)_(?P<uid>[a-f0-9\-]+)\/(?P<container_name>[^\._]+)\/(?P<restart_count>\d+)\.log$
+            type: regex_parser
+          - from: attributes.stream
+            to: attributes["log.iostream"]
+            type: move
+          - from: attributes.container_name
+            to: resource["k8s.container.name"]
+            type: move
+          - from: attributes.namespace
+            to: resource["k8s.namespace.name"]
+            type: move
+          - from: attributes.pod_name
+            to: resource["k8s.pod.name"]
+            type: move
+          - from: attributes.log
+            to: body
+            type: move
+      kubeletstats:
+        collection_interval: 60s
+        insecure_skip_verify: true
+        extra_metadata_labels:
+          - k8s.volume.type
+        metric_groups:
+          - container
+          - pod
+          - volume
+          - node
+
+    processors:
+      resource/remove_container_id:
+        attributes:
+          - action: delete
+            key: container.id
+          - action: delete
+            key: container_id
+      resource:
+        attributes:
+          - action: insert
+            key: loki.resource.labels
+            # value: from
+            value: k8s.container.name, k8s.namespace.name, k8s.pod.name
+          - action: insert
+            key: loki.format
+            value: raw
+      attributes:
+        actions:
+          - action: insert
+            key: otelcol_source
+            value: "platform-daemonset"
+      transform:
+        metric_statements:
+          - context: datapoint
+            statements:
+              - set(attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
+              - set(attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
+              - set(attributes["k8s_daemonset_name"], resource.attributes["k8s.daemonset.name"])
+              - set(attributes["k8s_deployment_name"], resource.attributes["k8s.deployment.name"])
+              - set(attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
+              - set(attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
+              - set(attributes["k8s_statefulset_name"], resource.attributes["k8s.statefulset.name"])
+    service:
+      telemetry:
+        metrics:
+          level: "basic"
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: "0.0.0.0"
+                    port: 8888
+      extensions:
+        - health_check
+      pipelines:
+        logs:
+          exporters:
+            - otlphttp/logs
+          processors:
+            - memory_limiter
+            - resource/remove_container_id
+            - resource
+            - batch
+          receivers:
+            - otlp
+        metrics:
+          exporters:
+            - otlphttp/metrics
+          processors:
+            - memory_limiter
+            - attributes
+            - transform
+            - batch
+          receivers:
+            - prometheus
+            - otlp
+    exporters:
+      debug:
+        verbosity: detailed
+      otlphttp/metrics:
+        endpoint: "http://orchestrator-observability-mimir-gateway:8181/otlp"
+        headers:
+          "X-Scope-OrgID": 'orchestrator-system'
+      otlphttp/logs:
+        endpoint: http://orchestrator-observability-loki-gateway/otlp
+        headers:
+          "X-Scope-OrgID": orchestrator-system
+      prometheusremotewrite:
+        endpoint: "http://orchestrator-observability-mimir-gateway:8181/api/v1/push"
+        headers:
+          "X-Scope-OrgID": 'orchestrator-system'
+        # wal: # Enabling the Write-Ahead-Log for the exporter.
+        #   # directory: ./prom_rw # The directory to store the WAL in
+        #   buffer_size: 100 # Optional count of elements to be read from the WAL before truncating; default of 300
+        #   truncate_frequency: 45s # Optional frequency for how often the WAL should be truncated. It is a time.ParseDuration; default of 1m
+        resource_to_telemetry_conversion:
+          enabled: true  # Convert resource attributes to metric labels
+  ports:
+    metrics:
+      enabled: true
+
+
+#############
+#  OpenTelemetry Deployment - Gathering metrics for the cluster as a whole
+############
+
+opentelemetry-collector:
+  mode: deployment
+  image:
+    repository: otel/opentelemetry-collector-contrib
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+  command:
+    name: otelcol-contrib
+  securityContext:
+    privileged: false
+  presets:
+    logsCollection:
+      enabled: false
+    clusterMetrics:
+      enabled: true
+    kubernetesEvents:
+      enabled: true
+  config:
+    extensions:
+      health_check:
+        endpoint: "0.0.0.0:13133"
+    receivers:
+      k8s_cluster:
+        allocatable_types_to_report:
+          - cpu
+          - memory
+          - storage
+          - ephemeral-storage
+        collection_interval: 30s
+        node_conditions_to_report:
+          - Ready
+          - MemoryPressure
+
+    processors:
+      memory_limiter:
+        limit_percentage: 70
+      resource/remove_container_id:
+        attributes:
+          - action: delete
+            key: container.id
+          - action: delete
+            key: container_id
+      resource:
+        attributes:
+          - action: insert
+            key: loki.resource.labels
+            # value: from
+            value: k8s.container.name, k8s.namespace.name, k8s.pod.name
+          - action: insert
+            key: loki.format
+            value: raw
+      attributes:
+        actions:
+          - action: insert
+            key: otelcol_source
+            value: "platform-deployment"
+      transform:
+        metric_statements:
+          - context: datapoint
+            statements:
+              - set(attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
+              - set(attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
+              - set(attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
+              - set(attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
+
+      probabilistic_sampler:
+        sampling_percentage: 15
+
+    service:
+      telemetry:
+        metrics:
+          level: "basic"
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: "0.0.0.0"
+                    port: 8888
+      extensions:
+        - health_check
+      pipelines:
+        metrics:
+          exporters:
+            - otlphttp/metrics
+          processors:
+            - resource/remove_container_id
+            - memory_limiter
+            - attributes
+            - transform
+            - batch
+          receivers:
+            - otlp
+            - prometheus
+        traces:
+          receivers:
+            - otlp
+            - zipkin
+            - jaeger
+          processors:
+            - probabilistic_sampler
+          exporters:
+            - otlp
+    exporters:
+      otlp:
+        headers:
+          "X-Scope-OrgID": 'orchestrator-system'
+        # Doc: https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlpexporter
+        endpoint: orchestrator-observability-tempo:4317
+        sending_queue:
+          enabled: true
+          queue_size: 10000
+        tls:
+          insecure: true
+      otlphttp/metrics:
+        endpoint: "http://orchestrator-observability-mimir-gateway:8181/otlp"
+        headers:
+          "X-Scope-OrgID": 'orchestrator-system'
+      otlphttp/logs:
+        endpoint: http://orchestrator-observability-loki-gateway/otlp
+        headers:
+          "X-Scope-OrgID": orchestrator-system
+      debug:
+        verbosity: detailed
+      prometheusremotewrite:
+        endpoint: "http://orchestrator-observability-mimir-gateway:8181/api/v1/push"
+        headers:
+          "X-Scope-OrgID": 'orchestrator-system'
+        # wal: # Enabling the Write-Ahead-Log for the exporter.
+        #   # directory: ./prom_rw # The directory to store the WAL in
+        #   buffer_size: 100 # Optional count of elements to be read from the WAL before truncating; default of 300
+        #   truncate_frequency: 45s # Optional frequency for how often the WAL should be truncated. It is a time.ParseDuration; default of 1m
+        resource_to_telemetry_conversion:
+          enabled: true  # Convert resource attributes to metric labels
+  ports:
+    metrics:
+      enabled: true
+
+#############
+# Loki
+############
+
+loki:
+  test:
+    enabled: false
+  lokiCanary:
+    enabled: false
+  monitoring:
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+    dashboards:
+      enabled: true
+      labels:
+        grafana_dashboard: "orchestrator"
+      annotations:
+        grafana_folder: "loki"
+    rules:
+      enabled: true
+      labels:
+        rules: "orchestrator"
+      alerting: false
+    selfMonitoring:
+      enabled: false
+      grafanaAgent:
+        installOperator: false
+  # TODO: minio->image and minio->mcImage can be removed when minio https://github.com/grafana/loki/blob/main/production/helm/loki/Chart.yaml#L16 is updated to version > 5.4.0
+  minio:
+    image:
+      repository: quay.io/minio/minio
+      tag: RELEASE.2025-01-20T14-49-07Z
+      pullPolicy: IfNotPresent
+    mcImage:
+      repository: quay.io/minio/mc
+      tag: RELEASE.2025-01-17T23-25-50Z
+      pullPolicy: IfNotPresent
+  loki:
+    podSecurityContext:
+      fsGroup: 10001
+      runAsGroup: 10001
+      runAsNonRoot: true
+      runAsUser: 10001
+      seccompProfile:
+        type: RuntimeDefault
+    # -- The SecurityContext for Loki containers
+    containerSecurityContext:
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+    auth_enabled: true
+    structuredConfig:
+      memberlist:
+        cluster_label: "orchestrator-observability-loki"
+        cluster_label_verification_disabled: false
+    analytics:
+      reporting_enabled: false
+    server:
+      grpc_server_max_recv_msg_size: 104857600
+    query_range:
+      parallelise_shardable_queries: true
+    frontend:
+      max_outstanding_per_tenant: 2048
+    query_scheduler:
+      max_outstanding_requests_per_tenant: 2048
+    querier:
+      multi_tenant_queries_enabled: true
+    commonConfig:
+      replication_factor: 1
+    compactor:
+      retention_enabled: true
+      delete_request_store: s3
+    ingester:
+      wal:
+        enabled: true
+        checkpoint_duration: 1m
+        dir: /var/loki/wal
+    limits_config:
+      max_query_parallelism: 32
+      max_cache_freshness_per_query: 10m
+      max_global_streams_per_user: 0
+      reject_old_samples: true
+      reject_old_samples_max_age: 1w
+      retention_period: 720h
+      split_queries_by_interval: 15m
+      query_timeout: 300s
+    storage:
+      bucketNames:
+        admin: loki-tsdb
+        chunks: loki-chunks
+        ruler: loki-ruler
+      type: s3
+      s3:
+        s3ForcePathStyle: true
+        accessKeyId: observability
+        endpoint: orchestrator-observability-minio:9000
+        insecure: true
+        secretAccessKey: supersecret
+    podLabels:
+      orchestrator/service: observability
+    schemaConfig:
+      configs:
+        - from: 2024-01-01
+          object_store: s3
+          store: tsdb
+          schema: v13
+          index:
+            prefix: observability_
+            period: 24h
+  write:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 500m
+        memory: 6Gi
+    replicas: 1
+    affinity:
+      podAntiAffinity: null
+  read:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 1000m
+        memory: 1024Mi
+    replicas: 1
+    affinity:
+      podAntiAffinity: null
+  gateway:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+    affinity:
+      podAntiAffinity: null
+  backend:
+    persistence:
+      volumeClaimsEnabled: false
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    affinity:
+      podAntiAffinity: null
+  resultsCache:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  chunksCache:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  memcachedExporter:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+  sidecar:
+    securityContext:
+      allowPrivilegeEscalation: false
+
+#############
+# Grafana Admin
+############
+
+grafana:
+  ##############
+  # For grafana proxy container as an additional Grafana container in Grafana pod
+  ##############
+  grafana_proxy:
+    name: grafana-proxy
+    registry: registry-rs.edgeorchestration.intel.com/edge-orch
+    repository: o11y/grafana-proxy
+    pullPolicy: IfNotPresent
+    tag: 0.4.9
+    env:
+      logLevel: info
+      includeDeleted: true
+      includeEdgenodeSystem: true
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+
+  env:
+    GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: true
+  grafana.ini:
+    dashboards:
+      default_home_dashboard_path: /tmp/dashboards/orchestrator/orchestrator-cluster.json
+    alerting:
+      enabled: false
+    metrics:
+      enabled: false
+    unified_alerting:
+      enabled: false
+    analytics:
+      reporting_enabled: false
+      check_for_updates: false
+    server:
+      root_url: https://observability-admin.kind.internal
+    auth:
+      login_maximum_inactive_lifetime_duration: 1h
+      login_maximum_lifetime_duration: 12h
+      disable_login_form: true
+      signout_redirect_url: https://keycloak.kind.internal/realms/master/protocol/openid-connect/logout?redirect_uri=https%3A%2F%2Fweb-ui.kind.internal
+    auth.generic_oauth:
+      allow_assign_grafana_admin: true
+      auto_login: true
+      enabled: true
+      name: Keycloak-OAuth
+      client_id: telemetry-client
+      scopes: openid email profile offline_access roles
+      email_attribute_path: email
+      login_attribute_path: username
+      name_attribute_path: full_name
+      auth_url: https://keycloak.kind.internal/realms/master/protocol/openid-connect/auth
+      token_url: http://platform-keycloak:8080/realms/master/protocol/openid-connect/token
+      api_url: http://platform-keycloak:8080/realms/master/protocol/openid-connect/userinfo
+      role_attribute_path: contains(resource_access."telemetry-client".roles[],'admin') && 'GrafanaAdmin' || contains(resource_access."telemetry-client".roles[],'viewer') && 'Viewer'
+      role_attribute_strict: true
+      use_refresh_token: true
+    users:
+      default_theme: light
+    security:
+      disable_initial_admin_creation: true
+      strict_transport_security: true
+      strict_transport_security_max_age_seconds: 86400
+      strict_transport_security_subdomains: true
+  datasources:
+    datsources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: EdgeNode-Mimir
+          type: prometheus
+          url: "http://localhost:9190/"
+          access: proxy
+          uid: edgenode-mimir
+          isDefault: false
+          jsonData:
+            oauthPassThru: true
+        - name: EdgeNode-Loki
+          type: loki
+          url: "http://localhost:9190/"
+          access: proxy
+          uid: edgenode-loki
+          jsonData:
+            oauthPassThru: true
+        - name: Orchestrator-Mimir
+          type: prometheus
+          url: "http://orchestrator-observability-mimir-gateway:8181/prometheus"
+          access: proxy
+          uid: orchestrator-mimir
+          isDefault: true
+          jsonData:
+            httpHeaderName1: 'X-Scope-OrgID'
+          secureJsonData:
+            httpHeaderValue1: 'orchestrator-system'
+        - name: Orchestrator-Loki
+          type: loki
+          url: "http://orchestrator-observability-loki-gateway"
+          access: proxy
+          uid: orchestrator-loki
+          jsonData:
+            httpHeaderName1: 'X-Scope-OrgID'
+          secureJsonData:
+            httpHeaderValue1: 'orchestrator-system'
+        - name: Orchestrator-Tempo
+          type: tempo
+          uid: orchestrator-tempo
+          url: http://orchestrator-observability-tempo:3100
+          access: proxy
+          basicAuth: false
+          jsonData:
+            httpHeaderName1: 'X-Scope-OrgID'
+            httpMethod: GET
+            serviceMap:
+              datasourceUid: 'orchestrator-mimir'
+            nodeGraph:
+              enabled: true
+            search:
+              hide: false
+            # tracesToLogs:
+            #   datasourceUid: 'orchestrator-loki'
+            #   tags: ['app', 'namespace','pod']
+            lokiSearch:
+              datasourceUid: 'orchestrator-loki'
+          secureJsonData:
+            httpHeaderValue1: 'orchestrator-system'
+          traceQuery:
+            timeShiftEnabled: true
+            spanStartTimeShift: '1h'
+            spanEndTimeShift: '-1h'
+  defaultDashboardsEnabled: false
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: ALL
+      label: grafana_dashboard
+      labelValue: orchestrator
+      folderAnnotation: grafana_folder
+      provider:
+        allowUiUpdates: false
+        foldersFromFilesStructure: true
+    datasources:
+      defaultDatasourceEnabled: false
+      isDefaultDatasource: false
+  podLabels:
+    orchestrator/service: logging
+  # TODO: testFramework:image can be removed when https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml#L125 is updated to use newer image
+  testFramework:
+    image:
+      registry: docker.io
+      repository: bats/bats
+      tag: "v1.11.1"
+
+#############
+# Grafana Mimir
+############
+
+mimir-distributed:
+  rollout_operator:
+    enabled: false
+  minio:
+    # TODO: image and mcImage can be removed when minio https://github.com/grafana/mimir/blob/main/operations/helm/charts/mimir-distributed/Chart.yaml#L12 is updated to version > 5.4.0
+    image:
+      repository: quay.io/minio/minio
+      tag: RELEASE.2025-01-20T14-49-07Z
+      pullPolicy: IfNotPresent
+    mcImage:
+      repository: quay.io/minio/mc
+      tag: RELEASE.2025-01-17T23-25-50Z
+      pullPolicy: IfNotPresent
+    makeBucketJob:
+      exitCommand: "curl -X POST 127.0.0.1:15000/quitquitquit"
+    enabled: true
+    replicas: 1
+    rootUser: observability
+    rootPassword: supersecret
+    persistence:
+      size: 5Gi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 1000m
+        memory: 4Gi
+    mode: standalone
+    configPathmc: "/tmp/minio/mc/"
+    buckets:
+      - name: mimir-tsdb
+        policy: none
+        purge: false
+      - name: mimir-ruler
+        policy: none
+        purge: false
+      - name: loki-tsdb
+        policy: none
+        purge: false
+      - name: loki-chunks
+        purge: false
+        policy: none
+      - name: loki-ruler
+        purge: false
+        policy: none
+    metrics:
+      serviceMonitor:
+        enabled: true
+    podLabels:
+      orchestrator/service: observability
+  runtimeConfig:
+    overrides:
+      anonymous:
+        ingestion_rate: 2000000
+        ingestion_burst_size: 2000000
+  mimir:
+    memberlistAppProtocol: tcp
+    structuredConfig:
+      query_scheduler:
+        max_outstanding_requests_per_tenant: 2048
+      frontend:
+        max_outstanding_per_tenant: 2048
+      usage_stats:
+        enabled: false
+      distributor:
+        remote_timeout: 120s
+      memberlist:
+        cluster_label: "orchestrator-observability-mimir"
+        cluster_label_verification_disabled: false
+      #   join_members:
+      #     - dnssrv+{{ include "mimir.fullname" . }}-gossip-ring.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }}:{{ include "mimir.memberlistBindPort" . }}
+      multitenancy_enabled: true
+      tenant_federation:
+        enabled: true
+      # querier:
+      #   query_store_after: 9h
+      blocks_storage:
+        tsdb:
+          wal_compression_enabled: true
+          # retention_period: 10h
+        backend: s3
+        s3:
+          bucket_name: mimir-tsdb
+          endpoint: orchestrator-observability-minio:9000
+          secret_access_key: supersecret
+          access_key_id: observability
+          insecure: true
+      ruler_storage:
+        s3:
+          endpoint: orchestrator-observability-minio:9000
+          bucket_name: mimir-ruler
+          secret_access_key: supersecret
+          access_key_id: observability
+          insecure: true
+      limits:
+        ingestion_rate: 8000000
+        ingestion_burst_size: 8000000
+        max_global_series_per_user: 8000000
+        max_label_names_per_series: 300
+        # Delete from storage metrics data older than 24 hours.
+        compactor_blocks_retention_period: 24h
+  alertmanager:
+    enabled: false
+  store_gateway:
+    persistentVolume:
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    zoneAwareReplication:
+      enabled: false
+    podLabels:
+      orchestrator/service: observability
+  ingester:
+    persistentVolume:
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: '2'
+        memory: 3Gi
+    replicas: 2
+    zoneAwareReplication:
+      enabled: false
+    podLabels:
+      orchestrator/service: observability
+  nginx:
+    enabled: false
+  gateway:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 1000m
+        memory: 1024Mi
+    podLabels:
+      orchestrator/service: observability
+    enabledNonEnterprise: true
+    nginx:
+      config:
+        serverSnippet: |
+          proxy_http_version 1.1;
+    service:
+      port: 8181
+      legacyPort: null
+  distributor:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    podLabels:
+      orchestrator/service: observability
+
+  compactor:
+    replicas: 1
+    persistentVolume:
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: '3'
+        memory: 512Mi
+    podLabels:
+      orchestrator/service: observability
+
+  query_frontend:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi  # reduced vs chart's default 512Mi
+      limits:
+        cpu: 2000m
+        memory: 1024Mi
+    podLabels:
+      orchestrator/service: observability
+
+  querier:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 2000m
+        memory: 1024Mi
+    podLabels:
+      orchestrator/service: observability
+
+  ruler:
+    enabled: false
+  overrides_exporter:
+    enabled: false
+  query_scheduler:
+    enabled: false
+
+  # Metamonitoring scrapes metrics about Grafana mimir, and loki itself
+  metaMonitoring:
+    prometheusRule:
+      mimirRules: true
+    serviceMonitor:
+      enabled: true
+
+#############
+# Tempo
+############
+
+tempo:
+  serviceMonitor:
+    enabled: true
+  persistence:
+    enabled: true
+  tempoQuery:
+    enabled: true
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: tempo-traces
+        endpoint: orchestrator-observability-minio:9000
+        forcepathstyle: true
+        access_key: observability
+        secret_key: supersecret
+        insecure: true
+
+  tempo:
+    reportingEnabled: false
+    multitenancyEnabled: true
+    metricsGenerator:
+      enabled: true
+      remoteWriteUrl: "http://orchestrator-observability-mimir-gateway:8181/api/v1/push"
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: "0.0.0.0:4317"
+          http:
+            endpoint: "0.0.0.0:4318"
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:14250
+          thrift_binary:
+            endpoint: 0.0.0.0:6832
+          thrift_compact:
+            endpoint: 0.0.0.0:6831
+          thrift_http:
+            endpoint: 0.0.0.0:14268

@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+---
+apiVersion: v2
+name: edgenode-dashboards
+description: Dashboards for Edge Node observability
+type: application
+version: 0.2.29
+appVersion: 0.2.29
+annotations:
+  revision: e77560dfa64bc4ea0026c58d7dce865fa5f0d605
+  created: "2025-03-31T09:07:52Z"

@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-dashboards
+  labels:
+    grafana_dashboard: "edgenode"
+  annotations:
+    grafana_folder: "Cluster"
+data:
+  edgenode-cluster.json: |-
+{{ .Files.Get "grafana-dashboards/edgenode-cluster.json" | indent 4 }}
+  cluster-pod-logs.json: |-
+{{ .Files.Get "grafana-dashboards/cluster-pod-logs.json" | indent 4 }}
+  cluster-pod.json: |-
+{{ .Files.Get "grafana-dashboards/cluster-pod.json" | indent 4 }}
+  cluster-virtualmachine.json: |-
+{{ .Files.Get "grafana-dashboards/edgenode-vm-applications.json" | indent 4 }}

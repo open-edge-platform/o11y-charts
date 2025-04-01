@@ -1,0 +1,321 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "$$hashKey": "object:75",
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 9,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "View Nodes",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/edgenode_host/edge-node-host-performance?orgId=1&var-projectName=$projectName"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "edgenode-loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Number of Logs",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "edgenode-loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({source=\"edgenode_provisioning\",file_type=\"$file_type\", projectId=\"$projectId\", host_guid=\"$guid\"} |~ \"$search\"[$__interval]))",
+          "legendFormat": "",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "edgenode-loki"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 25,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "maxDataPoints": "",
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "edgenode-loki"
+          },
+          "editorMode": "code",
+          "expr": "{source=\"edgenode_provisioning\",file_type=\"$file_type\", projectId=\"$projectId\", host_guid=\"$guid\"} |~ \"$search\" ",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Logs Panel",
+      "type": "logs"
+    }
+  ],
+  "preload": false,
+  "refresh": "",
+  "schemaVersion": 40,
+  "tags": [
+    "logs"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "definition": "label_values(project_metadata,projectName)",
+        "includeAll": false,
+        "label": "Project",
+        "name": "projectName",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(project_metadata,projectName)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "description": "Provisioning Log Type",
+        "includeAll": false,
+        "label": "Type",
+        "name": "file_type",
+        "options": [
+          {
+            "selected": true,
+            "text": "uOS Logs",
+            "value": "uOS_logs"
+          },
+          {
+            "selected": false,
+            "text": "FDO",
+            "value": "uOS_fdoLogs"
+          },
+          {
+            "selected": false,
+            "text": "Caddy",
+            "value": "uOS_caddyLogs"
+          },
+          {
+            "selected": false,
+            "text": "ClientAuth",
+            "value": "uOS_clientAuthLog"
+          },
+          {
+            "selected": false,
+            "text": "SysLog",
+            "value": "uOS_Syslog"
+          }
+        ],
+        "query": "uOS Logs : uOS_logs , FDO : uOS_fdoLogs , Caddy : uOS_caddyLogs , ClientAuth : uOS_clientAuthLog , SysLog : uOS_Syslog",
+        "type": "custom"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "edgenode-mimir"
+        },
+        "definition": "label_values(project_metadata{projectName=\"$projectName\"},projectId)",
+        "hide": 2,
+        "includeAll": false,
+        "label": "ProjectID",
+        "name": "projectId",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(project_metadata{projectName=\"$projectName\"},projectId)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "definition": "edge_host_status{deviceGuid !=\"\", projectId=\"$projectId\"}",
+        "label": "Host",
+        "name": "hostId",
+        "options": [],
+        "query": {
+          "qryType": 4,
+          "query": "edge_host_status{deviceGuid !=\"\", projectId=\"$projectId\"}",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/display_name=\\\"(?<text>[^\\\"]+)|hostID=\\\"(?<value>[^\\\"]+)/g",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "definition": "label_values(edge_host_status{hostID=\"$hostId\", projectId=\"$projectId\"},deviceGuid)",
+        "hide": 2,
+        "label": "Host",
+        "name": "guid",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(edge_host_status{hostID=\"$hostId\", projectId=\"$projectId\"},deviceGuid)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "name": "search",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Provisioning Logs",
+  "uid": "provisioning_logs",
+  "version": 1,
+  "weekStart": ""
+}

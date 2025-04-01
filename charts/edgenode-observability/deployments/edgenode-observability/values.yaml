@@ -1,0 +1,1055 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# This is to enable the dependencies.
+import:
+  loki:
+    enabled: true
+  minio:
+    enabled: false
+  mimir:
+    enabled: true
+  otel-operator:
+    enabled: false
+  otel:
+    enabled: true
+  grafana:
+    enabled: true
+  alertmanager:
+    enabled: true
+
+opentelemetry-operator:
+  admissionWebhooks:
+    create: false
+  manager:
+    targetAllocatorImage:
+      repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
+      tag: v0.116.0
+    securityContext:
+      runAsNonRoot: true
+      allowPrivilegesEscalation: false
+    env:
+      ENABLE_WEBHOOKS: "false"
+
+opentelemetry-collector:
+  mode: deployment
+  image:
+    registry: registry-rs.edgeorchestration.intel.com/edge-orch
+    repository: o11y/orch-otelcol
+    tag: 0.1.17
+  command:
+    name: otelcontribcol
+  securityContext:
+    privileged: false
+  presets:
+    logsCollection:
+      enabled: false
+    hostMetrics:
+      enabled: false
+  serviceMonitor:
+    enabled: true
+  ports:
+    metrics:
+      enabled: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 8000m
+      memory: 2Gi
+  podAnnotations:
+    sidecar.istio.io/proxyCPU: 10m
+    sidecar.istio.io/proxyCPULimit: 2000m
+    sidecar.istio.io/proxyMemory: 32Mi
+    sidecar.istio.io/proxyMemoryLimit: 512Mi
+  config:
+    extensions:
+      headers_setter:
+        headers:
+          - action: upsert
+            key: X-Scope-OrgID
+            from_context: projectId
+            default_value: edgenode-system
+      health_check:
+        endpoint: "0.0.0.0:13133"
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+          http:
+            include_metadata: true
+      prometheus/infra-exporter:
+        config:
+          scrape_configs:
+            - job_name: "infra-exporter"
+              scrape_interval: 15s
+              static_configs:
+                - targets: [ "exporter.orch-infra:9101" ]
+      prometheus/adm-status:
+        config:
+          scrape_configs:
+            - job_name: "adm-status"
+              scrape_interval: 15s
+              metrics_path: "/status"
+              static_configs:
+                - targets:
+                    [ "app-deployment-manager-metrics.orch-app:8080" ]
+      prometheus/observability-tenant-controller:
+        config:
+          scrape_configs:
+            - job_name: "observability-tenant-controller"
+              scrape_interval: 15s
+              static_configs:
+                - targets: [ "observability-tenant-controller.orch-platform:9273" ]
+    processors:
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+      # Expected to come in OpenTelemetry format.
+      transform/logs/fluentbit:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - attributes["kubernetes"] == nil
+            statements:
+              - set(attributes["file_type"], attributes["FileType"])
+      transform/logs/kubernetes:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              - attributes["kubernetes"] != nil
+            statements:
+              - set(attributes["pod"], attributes["kubernetes"]["pod_name"])
+              - set(attributes["namespace"], attributes["kubernetes"]["namespace_name"])
+              - set(attributes["container_name"], attributes["kubernetes"]["container_name"])
+              - set(attributes["host"], attributes["kubernetes"]["host"])
+      transform/metrics/hostid:
+        error_mode: ignore
+        metric_statements:
+          - context: datapoint
+            conditions:
+              - attributes["name"] != nil
+              - attributes["hostID"] != attributes["name"]
+            statements:
+              - set(attributes["display_name"], Concat([attributes["hostID"], " (", attributes["name"], ")"], ""))
+          - context: datapoint
+            conditions:
+              - attributes["hostID"] == attributes["name"] or attributes["name"] == nil
+            statements:
+              - set(attributes["display_name"], attributes["hostID"])
+
+      resource:
+        attributes:
+          - action: insert
+            key: loki.resource.labels
+            value: k8s.container.name, k8s.namespace.name, projectId
+          - action: insert
+            key: loki.format
+            value: json
+
+      attributes:
+        actions:
+          - action: insert
+            key: host
+            from_attribute: Hostname
+
+          - action: upsert
+            key: host_guid
+            from_attribute: hostGuid
+          # caddy on hookOS sends a header named hostGuid
+          - action: insert
+            key: host_guid
+            from_context: hostGuid
+
+          - action: insert
+            key: source
+            from_context: X-Log-Source
+
+          # set projectId from X-Scope-OrgId header
+          - action: insert
+            key: projectId
+            from_context: X-Scope-OrgId
+          # projectId as attribute
+          - action: upsert
+            key: projectId
+            from_attribute: projectId
+
+          - action: upsert
+            key: healthcheck
+            from_attribute: HealthCheck
+          - action: insert
+            key: loki.attribute.labels
+            value: host_guid, file_type, host, container_name, pod, namespace, source, healthcheck, projectId
+
+      groupbyattrs/project:
+        keys: [ projectId ]
+
+      context/project:
+        actions:
+          - action: upsert
+            key: projectId
+            from_attribute: projectId
+
+      batch:
+        metadata_keys:
+          - projectId
+
+      batch/metrics:
+        timeout: 2m
+        metadata_keys:
+          - projectId
+
+    # TODO: Fix this when operator is ready
+    # Fix in: https://github.com/open-telemetry/opentelemetry-operator/pull/3744
+    service:
+      telemetry:
+        metrics:
+          level: "detailed"
+    #       readers:
+    #         - pull:
+    #             exporter:
+    #               prometheus:
+    #                 host: ${env:MY_POD_IP}
+    #                 port: 8888
+      extensions:
+        - health_check
+        - headers_setter
+      pipelines:
+        logs:
+          exporters:
+            - loki
+          processors:
+            - memory_limiter
+            - transform/logs/fluentbit
+            - transform/logs/kubernetes
+            - resource
+            - attributes
+            - groupbyattrs/project
+            - context/project
+            - batch
+          receivers:
+            - otlp
+        metrics:
+          exporters:
+            - prometheusremotewrite
+          processors:
+            - memory_limiter
+            - groupbyattrs/project
+            - context/project
+            - transform/metrics/hostid
+            - batch/metrics
+          receivers:
+            - otlp
+            - prometheus/infra-exporter
+            - prometheus/adm-status
+            - prometheus/observability-tenant-controller
+    exporters:
+      loki:
+        endpoint: http://edgenode-observability-loki-gateway/loki/api/v1/push
+        default_labels_enabled:
+          exporter: false
+          job: true
+        auth:
+          authenticator: headers_setter
+      debug:
+        verbosity: detailed
+      prometheusremotewrite:
+        endpoint: "http://edgenode-observability-mimir-gateway:8181/api/v1/push"
+        resource_to_telemetry_conversion:
+          enabled: true  # Convert resource attributes to metric labels
+        auth:
+          authenticator: headers_setter
+loki:
+  test:
+    enabled: false
+  lokiCanary:
+    enabled: false
+  monitoring:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 60s
+    dashboards:
+      enabled: false
+    rules:
+      enabled: false
+      alerting: false
+    selfMonitoring:
+      enabled: false
+      grafanaAgent:
+        installOperator: false
+  # TODO: minio->image and minio->mcImage can be removed when minio
+  # https://github.com/grafana/loki/blob/main/production/helm/loki/Chart.yaml#L16 is updated to version > 5.4.0
+  minio:
+    image:
+      repository: quay.io/minio/minio
+      tag: RELEASE.2025-01-20T14-49-07Z
+      pullPolicy: IfNotPresent
+    mcImage:
+      repository: quay.io/minio/mc
+      tag: RELEASE.2025-01-17T23-25-50Z
+      pullPolicy: IfNotPresent
+  loki:
+    podSecurityContext:
+      fsGroup: 10001
+      runAsGroup: 10001
+      runAsNonRoot: true
+      runAsUser: 10001
+      seccompProfile:
+        type: RuntimeDefault
+    # -- The SecurityContext for Loki containers
+    containerSecurityContext:
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+    auth_enabled: true
+    analytics:
+      reporting_enabled: false
+    server:
+      grpc_server_max_recv_msg_size: 104857600
+      grpc_server_max_send_msg_size: 104857600
+    frontend:
+      max_outstanding_per_tenant: 2048
+      grpc_client_config:
+        grpc_compression: snappy
+    frontend_worker:
+      grpc_client_config:
+        grpc_compression: snappy
+    ingester_client:
+      grpc_client_config:
+        max_recv_msg_size: 104857600
+        max_send_msg_size: 104857600
+        grpc_compression: snappy
+    query_scheduler:
+      max_outstanding_requests_per_tenant: 2048
+      grpc_client_config:
+        grpc_compression: snappy
+    querier:
+      multi_tenant_queries_enabled: true
+    structuredConfig:
+      memberlist:
+        cluster_label: "edgenode-observability-loki"
+        cluster_label_verification_disabled: false
+    commonConfig:
+      replication_factor: 1
+    compactor:
+      retention_enabled: true
+      delete_request_store: s3
+      delete_request_cancel_period: 1m
+    ingester:
+      chunk_encoding: snappy
+    limits_config:
+      cardinality_limit: 100000
+      deletion_mode: filter-and-delete
+      ingestion_burst_size_mb: 6
+      ingestion_rate_mb: 4
+      max_cache_freshness_per_query: 10m
+      max_entries_limit_per_query: 5000
+      max_global_streams_per_user: 0
+      max_label_name_length: 1024
+      max_label_names_per_series: 15
+      max_label_value_length: 2048
+      max_line_size: "256KB"
+      max_query_parallelism: 32
+      per_stream_rate_limit: "3MB"
+      per_stream_rate_limit_burst: "15MB"
+      reject_old_samples: true
+      reject_old_samples_max_age: 1w
+      retention_period: 24h
+      split_queries_by_interval: 15m
+      query_timeout: 300s
+    storage:
+      bucketNames:
+        admin: fm-loki-tsdb
+        chunks: fm-loki-chunks
+        ruler: fm-loki-ruler
+      type: s3
+      s3:
+        s3ForcePathStyle: true
+        accessKeyId: observability
+        endpoint: edgenode-observability-minio:9000
+        insecure: true
+        secretAccessKey: supersecret
+    podLabels:
+      orchestrator/service: observability
+    schemaConfig:
+      configs:
+        - from: 2024-01-01
+          object_store: s3
+          store: tsdb
+          schema: v13
+          index:
+            prefix: observability_
+            period: 24h
+  write:
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 100m
+      sidecar.istio.io/proxyCPULimit: 1500m
+      sidecar.istio.io/proxyMemory: 128Mi
+      sidecar.istio.io/proxyMemoryLimit: 256Mi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 1500m
+        memory: 64Gi
+    replicas: 1
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution: null
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: write
+                  app.kubernetes.io/name: loki
+              topologyKey: kubernetes.io/hostname
+  read:
+    replicas: 1
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 100m
+      sidecar.istio.io/proxyCPULimit: 750m
+      sidecar.istio.io/proxyMemory: 128Mi
+      sidecar.istio.io/proxyMemoryLimit: 256Mi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 2400m
+        memory: 40Gi
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution: null
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: read
+                  app.kubernetes.io/name: loki
+              topologyKey: kubernetes.io/hostname
+  gateway:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution: null
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: gateway
+                  app.kubernetes.io/name: loki
+              topologyKey: kubernetes.io/hostname
+  backend:
+    persistence:
+      volumeClaimsEnabled: false
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 500m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 512Mi
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution: null
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: backend
+                  app.kubernetes.io/name: loki
+              topologyKey: kubernetes.io/hostname
+  sidecar:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+  memcachedExporter:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+  resultsCache:
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 500m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 512Mi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 400m
+        memory: 2400Mi
+  chunksCache:
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 4000m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 512Mi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 500m
+        memory: 20Gi
+
+grafana:
+  ##############
+  # For grafana proxy container as an additional Grafana container in Grafana pod
+  ##############
+  grafana_proxy:
+    name: grafana-proxy
+    registry: registry-rs.edgeorchestration.intel.com/edge-orch
+    repository: o11y/grafana-proxy
+    pullPolicy: IfNotPresent
+    tag: 0.4.9
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 500m
+        memory: 1024Mi
+    env:
+      logLevel: info
+      includeDeleted: true
+      includeEdgenodeSystem: false
+      namespace:
+        edgenode: orch-infra
+        platform: orch-platform
+  podAnnotations:
+    sidecar.istio.io/proxyCPU: 10m
+    sidecar.istio.io/proxyCPULimit: 1000m
+    sidecar.istio.io/proxyMemory: 32Mi
+    sidecar.istio.io/proxyMemoryLimit: 1024Mi
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+  env:
+    GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: true
+  grafana.ini:
+    alerting:
+      enabled: false
+    unified_alerting:
+      enabled: false
+    metrics:
+      enabled: false
+    analytics:
+      reporting_enabled: false
+      check_for_updates: false
+    server:
+      root_url: https://observability-ui.kind.internal
+    auth:
+      login_maximum_inactive_lifetime_duration: 1h
+      login_maximum_lifetime_duration: 12h
+      disable_login_form: true
+      signout_redirect_url: https://keycloak.kind.internal/realms/master/protocol/openid-connect/logout?redirect_uri=https%3A%2F%2Fweb-ui.kind.internal
+    auth.generic_oauth:
+      allow_assign_grafana_admin: true
+      api_url: http://platform-keycloak.orch-platform.svc.cluster.local:8080/realms/master/protocol/openid-connect/userinfo
+      auth_url: https://keycloak.kind.internal/realms/master/protocol/openid-connect/auth
+      auto_login: true
+      client_id: telemetry-client
+      email_attribute_path: email
+      enabled: true
+      login_attribute_path: username
+      name_attribute_path: full_name
+      name: Keycloak-OAuth
+      # This is a workaround for Keycloak not providing project specific role to client (saved under resource_access), but doing it for realm roles.
+      # TODO: Fix this when keycloak tenant controller fixes this.
+      role_attribute_path: length(realm_access.roles[?contains(@, '_tc-r')]) > `0` && 'Viewer' || contains(resource_access."telemetry-client".roles[],'admin') && 'GrafanaAdmin' || contains(resource_access."telemetry-client".roles[],'viewer') && 'Viewer'
+      role_attribute_strict: true
+      scopes: openid email profile offline_access roles
+      token_url: http://platform-keycloak.orch-platform.svc.cluster.local:8080/realms/master/protocol/openid-connect/token
+      use_refresh_token: true
+    users:
+      default_theme: light
+    security:
+      disable_initial_admin_creation: true
+      strict_transport_security: true
+      strict_transport_security_max_age_seconds: 86400
+      strict_transport_security_subdomains: true
+  datasources:
+    datsources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: EdgeNode-Mimir
+          type: prometheus
+          url: "http://localhost:9190"
+          access: proxy
+          uid: edgenode-mimir
+          isDefault: true
+          jsonData:
+            oauthPassThru: true
+        - name: EdgeNode-Loki
+          type: loki
+          url: "http://localhost:9190/"
+          access: proxy
+          uid: edgenode-loki
+          jsonData:
+            oauthPassThru: true
+  defaultDashboardsEnabled: false
+  sidecar:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 400m
+        memory: 2048Mi
+    dashboards:
+      enabled: true
+      searchNamespace: ALL
+      label: grafana_dashboard
+      labelValue: edgenode
+      folderAnnotation: grafana_folder
+      provider:
+        disableDelete: true
+        allowUiUpdates: false
+        foldersFromFilesStructure: true
+    datasources:
+      defaultDatasourceEnabled: false
+      isDefaultDatasource: false
+  podLabels:
+    orchestrator/service: logging
+  affinity:
+    podAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 50
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/component: querier
+                app.kubernetes.io/name: mimir
+            topologyKey: kubernetes.io/hostname
+        - weight: 50
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/component: read
+                app.kubernetes.io/name: loki
+            topologyKey: kubernetes.io/hostname
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: orchestrator/service
+                  operator: In
+                  values:
+                    - logging
+            topologyKey: kubernetes.io/hostname
+  # TODO: testFramework:image can be removed when https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml#L125 is updated to use newer image
+  testFramework:
+    image:
+      registry: docker.io
+      repository: bats/bats
+      tag: "v1.11.1"
+
+mimir-distributed:
+  rollout_operator:
+    enabled: false
+  minio:
+    # TODO: image and mcImage can be removed when minio
+    # https://github.com/grafana/mimir/blob/main/operations/helm/charts/mimir-distributed/Chart.yaml#L12 is updated to version > 5.4.0
+    image:
+      repository: quay.io/minio/minio
+      tag: RELEASE.2025-01-20T14-49-07Z
+      pullPolicy: IfNotPresent
+    mcImage:
+      repository: quay.io/minio/mc
+      tag: RELEASE.2025-01-17T23-25-50Z
+      pullPolicy: IfNotPresent
+    makeBucketJob:
+      exitCommand: "curl -X POST 127.0.0.1:15000/quitquitquit"
+    enabled: true
+    replicas: 1
+    rootUser: observability
+    rootPassword: supersecret
+    persistence:
+      size: 5Gi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+    mode: standalone
+    configPathmc: "/tmp/minio/mc/"
+    buckets:
+      - name: fm-mimir-tsdb
+        policy: none
+        purge: false
+      - name: fm-mimir-ruler
+        policy: none
+        purge: false
+      - name: fm-loki-tsdb
+        policy: none
+        purge: false
+      - name: fm-loki-chunks
+        purge: false
+        policy: none
+      - name: fm-loki-ruler
+        purge: false
+        policy: none
+    metrics:
+      serviceMonitor:
+        enabled: true
+    podLabels:
+      orchestrator/service: observability
+    affinity:
+      podAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: orchestrator/service
+                    operator: In
+                    values:
+                      - observability
+              topologyKey: kubernetes.io/hostname
+  runtimeConfig:
+    overrides:
+      anonymous:
+        ingestion_rate: 2000000
+        ingestion_burst_size: 2000000
+  mimir:
+    memberlistAppProtocol: tcp
+    structuredConfig:
+      query_scheduler:
+        max_outstanding_requests_per_tenant: 4096
+        grpc_client_config:
+          grpc_compression: snappy
+      frontend:
+        max_outstanding_per_tenant: 4096
+        grpc_client_config:
+          grpc_compression: snappy
+      frontend_worker:
+        grpc_client_config:
+          grpc_compression: snappy
+      ingester_client:
+        grpc_client_config:
+          grpc_compression: snappy
+      usage_stats:
+        enabled: false
+      compactor:
+        deletion_delay: 0
+      distributor:
+        remote_timeout: 120s
+      memberlist:
+        cluster_label: "edgenode-observability-mimir"
+        cluster_label_verification_disabled: false
+      #   join_members:
+      #     - dnssrv+{{ include "mimir.fullname" . }}-gossip-ring.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }}:{{ include "mimir.memberlistBindPort" . }}
+      multitenancy_enabled: true
+      tenant_federation:
+        enabled: true
+      # querier:
+      #   query_store_after: 9h
+      ruler:
+        # This has to be headless service to resolve all pod addresses (actually get a list).
+        alertmanager_url: dnssrvnoa+http://alerting-monitor-alertmanager-headless.{{ .Release.Namespace }}.svc.{{ .Values.global.clusterDomain }}:9093
+        query_frontend:
+          grpc_client_config:
+            grpc_compression: snappy
+      blocks_storage:
+        tsdb:
+          wal_compression_enabled: true
+          # retention_period: 10h
+        backend: s3
+        s3:
+          bucket_name: fm-mimir-tsdb
+          endpoint: edgenode-observability-minio:9000
+          secret_access_key: supersecret
+          access_key_id: observability
+          insecure: true
+      ruler_storage:
+        s3:
+          endpoint: edgenode-observability-minio:9000
+          bucket_name: fm-mimir-ruler
+          secret_access_key: supersecret
+          access_key_id: observability
+          insecure: true
+      limits:
+        # Allow ingestion of out-of-order samples up to 30 minutes since the latest received sample for the series.
+        out_of_order_time_window: 30m
+        ingestion_rate: 2000000
+        ingestion_burst_size: 2000000
+        max_global_series_per_user: 1000000
+        max_label_names_per_series: 300
+        # Delete from storage metrics data older than 24 hours.
+        compactor_blocks_retention_period: 24h
+  alertmanager:
+    enabled: false
+  store_gateway:
+    persistentVolume:
+      size: 2Gi
+    # replicas: 3
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 6000m
+        memory: 4Gi
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 1000m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 1Gi
+    zoneAwareReplication:
+      enabled: false
+    podLabels:
+      orchestrator/service: observability
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: store-gateway
+                  app.kubernetes.io/name: mimir
+              topologyKey: kubernetes.io/hostname
+  ingester:
+    persistentVolume:
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 5000m
+        memory: 20Gi
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 1000m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 1Gi
+    replicas: 2
+    zoneAwareReplication:
+      enabled: false
+    podLabels:
+      orchestrator/service: observability
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: ingester
+                  app.kubernetes.io/name: mimir
+              topologyKey: kubernetes.io/hostname
+  nginx:
+    enabled: false
+  gateway:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 1000m
+        memory: 1024Mi
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 1000m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 1024Mi
+    podLabels:
+      orchestrator/service: observability
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: gateway
+                  app.kubernetes.io/name: mimir
+              topologyKey: kubernetes.io/hostname
+    enabledNonEnterprise: true
+    nginx:
+      config:
+        serverSnippet: |
+          proxy_http_version 1.1;
+    service:
+      port: 8181
+      legacyPort: null
+  distributor:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 2000m
+        memory: 1Gi
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 1000m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 1Gi
+    podLabels:
+      orchestrator/service: observability
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: distributor
+                  app.kubernetes.io/name: mimir
+              topologyKey: kubernetes.io/hostname
+  compactor:
+    replicas: 1
+    persistentVolume:
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi  # reduced vs chart's default 512Mi
+      limits:
+        cpu: 3000m
+        memory: 1024Mi
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 500m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 512Mi
+    podLabels:
+      orchestrator/service: observability
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: compactor
+                  app.kubernetes.io/name: mimir
+              topologyKey: kubernetes.io/hostname
+  querier:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 10000m
+        memory: 40Gi
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 4000m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 6Gi
+    podLabels:
+      orchestrator/service: observability
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: querier
+                  app.kubernetes.io/name: mimir
+              topologyKey: kubernetes.io/hostname
+  query_frontend:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 10000m
+        memory: 20Gi
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 3000m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 4Gi
+    podLabels:
+      orchestrator/service: observability
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: query-frontend
+                  app.kubernetes.io/name: mimir
+              topologyKey: kubernetes.io/hostname
+  ruler:
+    enabled: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 8000m
+        memory: 4Gi
+    podAnnotations:
+      sidecar.istio.io/proxyCPU: 10m
+      sidecar.istio.io/proxyCPULimit: 2000m
+      sidecar.istio.io/proxyMemory: 32Mi
+      sidecar.istio.io/proxyMemoryLimit: 2Gi
+    podLabels:
+      orchestrator/service: observability
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: ruler
+                  app.kubernetes.io/name: mimir
+              topologyKey: kubernetes.io/hostname
+  overrides_exporter:
+    enabled: false
+  query_scheduler:
+    enabled: false
+
+  # Metamonitoring scrapes metrics about Grafana mimir, and loki itself
+  metaMonitoring:
+    serviceMonitor:
+      enabled: true

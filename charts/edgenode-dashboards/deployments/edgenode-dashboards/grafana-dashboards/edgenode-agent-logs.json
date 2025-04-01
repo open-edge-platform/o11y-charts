@@ -1,0 +1,405 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "$$hashKey": "object:75",
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 11,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": false,
+      "title": "View Node",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/edgenode_host/edge-node-host-performance?orgId=1&refresh=30s&var-guid=$guid&var-projectName=$projectName"
+    }
+  ],
+  "panels": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "edgenode-loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Number of Logs",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "edgenode-loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({file_type=~\"$file\",host_guid=\"$guid\",projectId=\"$projectId\"} |~ \"$search\"[$__interval]))",
+          "legendFormat": "",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "edgenode-loki"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 25,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "maxDataPoints": "",
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "edgenode-loki"
+          },
+          "editorMode": "code",
+          "expr": "{file_type=~\"$file\", host_guid=\"$guid\", projectId=\"$projectId\"} |~ \"$search\" | json | line_format \"{{.attributes_MESSAGE}}\" ",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Logs Panel",
+      "type": "logs"
+    }
+  ],
+  "preload": false,
+  "refresh": "",
+  "schemaVersion": 40,
+  "tags": [
+    "logs"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "edgenode-mimir"
+        },
+        "definition": "label_values(project_metadata,projectName)",
+        "includeAll": false,
+        "label": "Project",
+        "name": "projectName",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(project_metadata,projectName)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "edgenode-mimir"
+        },
+        "definition": "edge_host_status{projectId=\"$projectId\"}",
+        "includeAll": false,
+        "label": "Host",
+        "name": "hostId",
+        "options": [],
+        "query": {
+          "qryType": 4,
+          "query": "edge_host_status{projectId=\"$projectId\"}",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/display_name=\"(?<text>[^\"]+)|hostID=\"(?<value>[^\"]+)/g",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "edgenode-mimir"
+        },
+        "definition": "label_values(edge_host_status{projectId=\"$projectId\", hostID=\"$hostId\"},deviceGuid)",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Host",
+        "name": "guid",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(edge_host_status{projectId=\"$projectId\", hostID=\"$hostId\"},deviceGuid)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "edgenode-mimir"
+        },
+        "definition": "label_values(project_metadata{projectName=\"$projectName\"},projectId)",
+        "hide": 2,
+        "includeAll": false,
+        "label": "ProjectID",
+        "name": "projectId",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(project_metadata{projectName=\"$projectName\"},projectId)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {},
+        "description": "Bare Metal Agent Type",
+        "includeAll": false,
+        "label": "Type",
+        "multi": true,
+        "name": "file",
+        "options": [
+          {
+            "selected": true,
+            "text": "Cluster Agent",
+            "value": "ClusterAgent"
+          },
+          {
+            "selected": false,
+            "text": "Hardware Agent",
+            "value": "HardwareAgent"
+          },
+          {
+            "selected": false,
+            "text": "License Agent",
+            "value": "LicenseAgent"
+          },
+          {
+            "selected": false,
+            "text": "Node Agent",
+            "value": "NodeAgent"
+          },
+          {
+            "selected": false,
+            "text": "OpenTelemetry Collector",
+            "value": "OpenTelemetry_Collector"
+          },
+          {
+            "selected": false,
+            "text": "Platform Update Agent",
+            "value": "PlatformUpdateAgent"
+          },
+          {
+            "selected": false,
+            "text": "Platform Telemetry Agent",
+            "value": "Platform_Telemetry_Agent"
+          },
+          {
+            "selected": false,
+            "text": "RKE Server",
+            "value": "RKE_Server"
+          },
+          {
+            "selected": false,
+            "text": "RKE System Agent",
+            "value": "RKE_System_Agent"
+          },
+          {
+            "selected": false,
+            "text": "Caddy",
+            "value": "caddy"
+          },
+          {
+            "selected": false,
+            "text": "Telegraf",
+            "value": "Telegraf"
+          },
+          {
+            "selected": false,
+            "text": "Installer",
+            "value": "installer"
+          },
+          {
+            "selected": false,
+            "text": "Apt Install History Logs",
+            "value": "AptInstallLogs"
+          },
+          {
+            "selected": false,
+            "text": "INBM",
+            "value": "INBM"
+          },
+          {
+            "selected": false,
+            "text": "INBM Dispatcher",
+            "value": "INBM_Dispatcher"
+          },
+          {
+            "selected": false,
+            "text": "INBM Configuration",
+            "value": "INBM_Configuration"
+          },
+          {
+            "selected": false,
+            "text": "INBM Diagnostic",
+            "value": "INBM_Diagnostic"
+          },
+          {
+            "selected": false,
+            "text": "INBM Telemetry",
+            "value": "INBM_Telemetry"
+          },
+          {
+            "selected": false,
+            "text": "INBM Update Status",
+            "value": "INBM_Update_Status"
+          }
+        ],
+        "query": "Cluster Agent : ClusterAgent, Hardware Agent : HardwareAgent, License Agent : LicenseAgent, Node Agent : NodeAgent, OpenTelemetry Collector : OpenTelemetry_Collector, Platform Update Agent : PlatformUpdateAgent, Platform Telemetry Agent : Platform_Telemetry_Agent, RKE Server : RKE_Server, RKE System Agent : RKE_System_Agent, Caddy : caddy , Telegraf : Telegraf , Installer : installer, Apt Install History Logs : AptInstallLogs, INBM : INBM, INBM Dispatcher : INBM_Dispatcher, INBM Configuration : INBM_Configuration, INBM Diagnostic : INBM_Diagnostic, INBM Telemetry : INBM_Telemetry, INBM Update Status : INBM_Update_Status",
+        "type": "custom"
+      },
+      {
+        "current": {},
+        "name": "search",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Edge Node Agent Log Search",
+  "uid": "edgenode_log_agent",
+  "version": 1,
+  "weekStart": ""
+}

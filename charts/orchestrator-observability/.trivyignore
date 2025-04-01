@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Present in mimir and minio charts. We're already running the latest version of those charts.
+CVE-2024-24790 exp:2024-12-15
+# Present in grafana chart. Used in a testing harness, image doesn't appear in final deployment.
+CVE-2022-37434 exp:2024-12-15

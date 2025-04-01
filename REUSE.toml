@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+version = 1
+
+[[annotations]]
+path = [
+  "**/orch-ci",
+  "**/*.json",
+  "**/*.tpl",
+  "**/*/.tool-versions",
+  "**/*/VERSION",
+  "**/*/go.mod",
+  "**/*/go.sum"
+]
+SPDX-FileCopyrightText = "2025 Intel Corporation"
+SPDX-License-Identifier = "Apache-2.0"

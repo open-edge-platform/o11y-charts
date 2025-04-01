@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orchestrator-observability
+  labels:
+    grafana_dashboard: "orchestrator"
+  annotations:
+    grafana_folder: "orchestrator"
+data:
+  open-telemetry-collector.json: |
+{{ .Files.Get "grafana-dashboards/open-telemetry-collector.json" | indent 4 }}
+  orchestrator-cluster.json: |
+{{ .Files.Get "grafana-dashboards/orchestrator-cluster.json" | indent 4 }}
+  orchestrator-node.json: |
+{{ .Files.Get "grafana-dashboards/orchestrator-node.json" | indent 4 }}
+  orchestrator-pod.json: |
+{{ .Files.Get "grafana-dashboards/orchestrator-pod.json" | indent 4 }}
+  orchestrator-pod-list.json: |
+{{ .Files.Get "grafana-dashboards/orchestrator-pod-list.json" | indent 4 }}
+  orchestrator-pod-log.json: |
+{{ .Files.Get "grafana-dashboards/orchestrator-pod-log.json" | indent 4 }}
+  audit-logs.json: |
+{{ .Files.Get "grafana-dashboards/audit-logs.json" | indent 4 }}

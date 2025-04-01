@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# This file was copied from https://github.com/springernature/o11y-otel-contextprocessor and adapted to meet specific needs.
+
+type: attributes
+
+status:
+  class: processor
+  stability:
+    beta: [ traces, metrics, logs ]
+  distributions:
+    - contrib
+  warnings: [ Identity Conflict ]
+  codeowners:
+    active: [ jriguera ]
