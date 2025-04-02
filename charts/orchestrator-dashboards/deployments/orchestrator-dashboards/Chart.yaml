@@ -5,8 +5,8 @@ apiVersion: v2
 name: orchestrator-dashboards
 description: Dashboard for Orchestrator observability
 type: application
-version: 0.2.17
-appVersion: 0.2.17
+version: 0.3.0
+appVersion: 0.3.0
 annotations:
-  revision: 9ba8a1224b94c44ba72cef4342a29bfc9fd0d920
-  created: "2025-03-31T09:09:57Z"
+  revision: 391f1a0fe3a52e9c6488ec60ca27f186c23d1dba
+  created: "2025-04-02T08:00:04Z"
