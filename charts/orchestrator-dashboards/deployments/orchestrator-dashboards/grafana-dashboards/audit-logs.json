@@ -26,7 +26,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 23,
   "links": [
     {
       "asDropdown": false,
@@ -123,7 +123,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -167,7 +167,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": true
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -193,28 +193,34 @@
   "templating": {
     "list": [
       {
-        "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "orchestrator-mimir"
+        "current": {
+          "text": "orch-infra",
+          "value": "orch-infra"
         },
-        "definition": "label_values(kube_pod_info,namespace)",
-        "includeAll": false,
         "label": "Namespace",
         "name": "namespace",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(kube_pod_info,namespace)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
+        "options": [
+          {
+            "selected": false,
+            "text": "orch-iam",
+            "value": "orch-iam"
+          },
+          {
+            "selected": true,
+            "text": "orch-infra",
+            "value": "orch-infra"
+          }
+        ],
+        "query": "orch-iam, orch-infra",
+        "type": "custom"
       },
       {
-        "current": {},
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
         "datasource": {
           "type": "prometheus",
           "uid": "orchestrator-mimir"
@@ -235,7 +241,10 @@
         "type": "query"
       },
       {
-        "current": {},
+        "current": {
+          "text": "",
+          "value": ""
+        },
         "name": "search",
         "options": [
           {
@@ -257,6 +266,6 @@
   "timezone": "",
   "title": "Audit Logs",
   "uid": "audit_logs",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }
