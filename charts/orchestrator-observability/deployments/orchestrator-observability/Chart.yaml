@@ -40,5 +40,5 @@ dependencies:
     condition: import.grafana.enabled
   - name: tempo
     condition: import.tempo.enabled
-    version: "1.18.1"
+    version: "1.18.3"
     repository: "https://grafana.github.io/helm-charts"
