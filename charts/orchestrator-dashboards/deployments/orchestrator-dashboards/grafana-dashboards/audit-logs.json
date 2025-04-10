@@ -194,19 +194,19 @@
     "list": [
       {
         "current": {
-          "text": "orch-infra",
-          "value": "orch-infra"
+          "text": "orch-iam",
+          "value": "orch-iam"
         },
         "label": "Namespace",
         "name": "namespace",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "orch-iam",
             "value": "orch-iam"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "orch-infra",
             "value": "orch-infra"
           }

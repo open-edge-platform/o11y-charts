@@ -8,5 +8,5 @@ type: application
 version: 0.3.1
 appVersion: 0.3.1
 annotations:
-  revision: dc4d5643bb0027a953687abafd1939a07fb3ceda
-  created: "2025-04-10T08:51:02Z"
+  revision: e4721852343476273457bf1294623a995ae84654
+  created: "2025-04-10T12:50:41Z"
