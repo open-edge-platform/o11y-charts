@@ -26,7 +26,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 15,
+  "id": 2,
   "links": [
     {
       "asDropdown": false,
@@ -139,7 +139,7 @@
             "uid": "edgenode-loki"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({namespace=\"$namespace\", pod=~\"$pod\", host_guid=\"$guid\", projectId=\"$projectId\", source=\"edgenode_container_logs\"} |~ \"$search\"[$__interval]))",
+          "expr": "sum(count_over_time({namespace=\"$namespace\", pod=~\"$pod\", host_guid=\"$guid\", projectId=\"$projectId\", source=~\"edgenode_container_logs|edgenode_application_logs\"} |~ \"$search\"[$__interval]))",
           "legendFormat": "count",
           "queryType": "range",
           "refId": "A"
@@ -183,7 +183,7 @@
             "uid": "edgenode-loki"
           },
           "editorMode": "code",
-          "expr": "{host_guid=\"$guid\", namespace=\"$namespace\", pod=~\"$pod\",projectId=\"$projectId\", source=\"edgenode_container_logs\"} |~ \"$search\"",
+          "expr": "{host_guid=\"$guid\", namespace=\"$namespace\", pod=~\"$pod\",projectId=\"$projectId\", source=~\"edgenode_container_logs|edgenode_application_logs\"} |~ \"$search\"",
           "hide": false,
           "queryType": "range",
           "refId": "A"
@@ -345,6 +345,6 @@
   "timezone": "",
   "title": "Cluster Pod Logs",
   "uid": "cluster-pod-logs",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
