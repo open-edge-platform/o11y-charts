@@ -5,8 +5,8 @@ apiVersion: v2
 name: edgenode-dashboards
 description: Dashboards for Edge Node observability
 type: application
-version: 0.3.1
-appVersion: 0.3.1
+version: 0.3.2
+appVersion: 0.3.2
 annotations:
-  revision: 34647f0e71017dfebb23058770061b25ac9f992b
-  created: "2025-04-09T09:00:16Z"
+  revision: dc4d5643bb0027a953687abafd1939a07fb3ceda
+  created: "2025-04-10T12:38:58Z"
