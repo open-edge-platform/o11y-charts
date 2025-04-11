@@ -1,7 +1,11 @@
 # SPDX-FileCopyrightText: (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+# Shell config variable
+SHELL := bash -eu -o pipefail
+
 PROJECT_NAME    := grafana-proxy
+GIT_TAG_PREFIX  := apps/grafana-proxy-v
 
 VENDOR_DIR      ?= ./vendor
 

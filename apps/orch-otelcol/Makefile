@@ -1,7 +1,11 @@
 # SPDX-FileCopyrightText: (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+# Shell config variable
+SHELL := bash -eu -o pipefail
+
 PROJECT_NAME    := orch-otelcol
+GIT_TAG_PREFIX  := apps/orch-otelcol-
 
 .DEFAULT_GOAL   := help
 .PHONY: build

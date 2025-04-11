@@ -36,11 +36,21 @@ docker-build:
 	for dir in $(SUBPROJECTS); do $(MAKE) -C $$dir docker-build; done
 	@echo "---END MAIN MAKEFILE DOCKER-BUILD---"
 
+APPS = apps/grafana-proxy apps/orch-otelcol
+docker-list: ## list all docker containers
+	@echo "images:"
+	@for dir in $(APPS); do $(MAKE) -C $$dir $@; done
+
 helm-build:
 	@# Help: Runs helm-build target in all subprojects
 	@echo "---MAIN MAKEFILE HELM-BUILD---"
 	for dir in $(SUBPROJECTS); do $(MAKE) -C $$dir helm-build; done
 	@echo "---END MAIN MAKEFILE HELM-BUILD---"
+
+CHARTS = charts/edgenode-dashboards charts/edgenode-observability charts/orchestrator-dashboards charts/orchestrator-observability
+helm-list: ## list all docker containers
+	@echo "charts:"
+	@for dir in $(CHARTS); do $(MAKE) -C $$dir $@; done
 
 clean:
 	@# Help: Runs clean target in all subprojects
