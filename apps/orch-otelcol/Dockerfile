@@ -7,7 +7,7 @@ WORKDIR /opt/
 
 COPY . .
 
-RUN apk add --upgrade --no-cache curl=~8 git=~2
+RUN apk add --upgrade --no-cache curl=~8 git=~2 make=~4 bash=~5
 
 # Match with the version in builder.yaml
 ARG OTEL_VERSION=0.123.0
