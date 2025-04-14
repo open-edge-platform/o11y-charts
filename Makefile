@@ -4,6 +4,8 @@
 # Shell config variable
 SHELL := bash -eu -o pipefail
 
+MAKEFLAGS += --no-print-directory
+
 SUBPROJECTS := apps/grafana-proxy apps/orch-otelcol charts/edgenode-dashboards charts/edgenode-observability charts/orchestrator-dashboards charts/orchestrator-observability
 
 .DEFAULT_GOAL := help
