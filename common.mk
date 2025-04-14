@@ -85,6 +85,20 @@ common-helm-push: ## Pushes the helm chart
 	aws ecr create-repository --region us-west-2 --repository-name $(REGISTRY_NO_AUTH)/$(REPOSITORY)/charts/$(CHART_NAME) || true
 	helm push $(CHART_BUILD_DIR)$(CHART_NAME)*.tgz oci://$(REPOSITORY_NO_AUTH)/charts
 	@echo "---END MAKEFILE COMMON-HELM-PUSH---"
+
+docker-list: ## Print name of docker container image
+	@echo "  $(DOCKER_IMAGE_NAME):"
+	@echo "    name: '$(REPOSITORY_NO_AUTH)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)'"
+	@echo "    version: '$(DOCKER_IMAGE_TAG)'"
+	@echo "    gitTagPrefix: '$(GIT_TAG_PREFIX)'"
+	@echo "    buildTarget: '$(PROJECT_NAME)-docker-build'"
+
+helm-list: ## List helm charts, tag format, and versions in YAML format
+	@echo "  $(CHART_NAME):" ;\
+  echo -n "    "; grep "^version" "${CHART_PATH}/Chart.yaml"  ;\
+  echo "    gitTagPrefix: 'charts/$(PROJECT_NAME)-'" ;\
+  echo "    outDir: 'charts/$(PROJECT_NAME)/build/chart'" ;\
+
 ## Common CI Targets end
 
 ## Common helper Targets start
