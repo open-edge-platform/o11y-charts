@@ -25,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 9,
+  "id": 14,
   "links": [
     {
       "asDropdown": false,
@@ -204,7 +204,10 @@
         "type": "query"
       },
       {
-        "current": {},
+        "current": {
+          "text": "uOS_logs",
+          "value": "uOS_logs"
+        },
         "description": "Provisioning Log Type",
         "includeAll": false,
         "label": "Type",
@@ -217,8 +220,8 @@
           },
           {
             "selected": false,
-            "text": "FDO",
-            "value": "uOS_fdoLogs"
+            "text": "uOS Bootkit",
+            "value": "uOS_bootkitLogs"
           },
           {
             "selected": false,
@@ -236,7 +239,7 @@
             "value": "uOS_Syslog"
           }
         ],
-        "query": "uOS Logs : uOS_logs , FDO : uOS_fdoLogs , Caddy : uOS_caddyLogs , ClientAuth : uOS_clientAuthLog , SysLog : uOS_Syslog",
+        "query": "uOS Logs : uOS_logs , uOS Bootkit : uOS_bootkitLogs , Caddy : uOS_caddyLogs , ClientAuth : uOS_clientAuthLog , SysLog : uOS_Syslog",
         "type": "custom"
       },
       {
@@ -316,6 +319,6 @@
   "timezone": "",
   "title": "Provisioning Logs",
   "uid": "provisioning_logs",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
