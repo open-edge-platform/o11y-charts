@@ -88,3 +88,20 @@ jobs:
       project_folder: ${{ matrix.project_folder }}
       bootstrap_tools: "go,gotools,nodejs,python,golang-lint,helm,shellcheck,hadolint,yq,jq,protolint"
     secrets: inherit
+  final-check:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [pre-merge]
+    steps:
+      - name: Final Status Check
+        run: |
+          pre_merge_pipeline_result="${{ needs.pre-merge.result }}"
+          
+          echo "Pre-merge pipeline result: $pre_merge_pipeline_result"
+
+          if [ "$pre_merge_pipeline_result" == "success" ] || [ "$pre_merge_pipeline_result" == "skipped" ]; then
+            echo "Pre-merge check passed successfully."
+          else
+            echo "Pre-merge checks failed. PR can't get merged"
+            exit 1
+          fi
