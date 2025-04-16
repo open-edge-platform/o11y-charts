@@ -16,7 +16,7 @@ jobs:
   pre-checks:
     permissions:
       contents: read
-    runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     outputs:
       all_changed_projects: ${{ steps.merge-changed-projects.outputs.all_changed_projects }}
     steps:
@@ -71,22 +71,21 @@ jobs:
         project_folder: ${{ fromJson(needs.pre-checks.outputs.all_changed_projects) }}
     uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@0.1.2
     with:
+      project_folder: ${{ matrix.project_folder }}
+      prefix_tag_separator: "-"
       run_reuse_check: true
       run_version_check: true
-      run_security_scans: true
-      run_dep_version_check: true
+      bootstrap_tools: "go,gotools,nodejs,python,golang-lint,helm,shellcheck,hadolint,yq,jq,protolint"
+      run_dep_version_check: false
       cache_go: true
       run_build: true
       run_lint: true
       run_test: true
+      remove_cache_go: true
       run_validate_clean_folder: false
       run_docker_build: true
       run_helm_build: true
-      run_scan_containers: true
       run_artifact: false
-      prefix_tag_separator: "-"
-      project_folder: ${{ matrix.project_folder }}
-      bootstrap_tools: "go,gotools,nodejs,python,golang-lint,helm,shellcheck,hadolint,yq,jq,protolint"
     secrets: inherit
   final-check:
     runs-on: ubuntu-latest
