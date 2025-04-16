@@ -1,6 +1,7 @@
 module github.com/jriguera/opentelemetry-collector-contrib/processor/contextprocessor
 
 go 1.24.0
+
 require (
 	go.opentelemetry.io/collector/client v1.29.0
 	go.opentelemetry.io/collector/component v1.29.0
@@ -30,7 +31,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.35.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/net v0.37.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250127172529-29210b9bc287 // indirect
