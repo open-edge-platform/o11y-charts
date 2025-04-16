@@ -5,4 +5,4 @@ SPDX-License-Identifier: Apache-2.0
 
 # edgenode-dashboards
 
-Grafana dashboards targeted to be deployed on top of `edgenode-observability` stack.
+Grafana dashboards targeted to be deployed on top of [edgenode-observability](../edgenode-observability) stack.
