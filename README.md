@@ -3,9 +3,9 @@ SPDX-FileCopyrightText: (C) 2025 Intel Corporation
 SPDX-License-Identifier: Apache-2.0
 -->
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
 # Edge Orchestrator Observability Charts
+
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 [Edge Node Observability Stack]: charts/edgenode-observability
 [Edge Node Observability Dashboards]: charts/edgenode-dashboards
