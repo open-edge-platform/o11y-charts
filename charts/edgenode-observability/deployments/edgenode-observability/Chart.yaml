@@ -5,11 +5,11 @@ apiVersion: v2
 name: edgenode-observability
 description: Edge Node Centralized Observability
 type: application
-version: 0.10.0
-appVersion: 0.10.0
+version: 0.10.1-dev
+appVersion: 0.10.1-dev
 annotations:
-  revision: 391f1a0fe3a52e9c6488ec60ca27f186c23d1dba
-  created: "2025-04-02T07:59:50Z"
+  revision: e15834ec7986322f184e4f1e2bb5c1f622d7b52f
+  created: "2025-04-16T13:30:52Z"
 dependencies:
   - name: minio
     alias: minio
