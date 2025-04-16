@@ -5,4 +5,4 @@ SPDX-License-Identifier: Apache-2.0
 
 # orchestrator-dashboards
 
-Grafana dashboards targeted to be deployed on top of `orchestrator-observability` stack.
+Grafana Dashboards targeted to be deployed on top of [orchestrator-observability](../orchestrator-observability) stack.
