@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # edgenode-observability
 
-This repository contains definition of Edge Node Observability stack that handles metrics and logs either originating from the Edge Nodes or exposed by the Orchestrator but related to Edge Nodes.
+This stack is intended for handling metrics and logs originating either from the Edge Nodes or from the Edge Orchestrator services that expose data about the Edge Nodes.
 
 Key components of this centralized observability stack are:
 
@@ -14,4 +14,4 @@ Key components of this centralized observability stack are:
 - **Grafana Loki** - logs backend
 - **OpenTelemetry Collector** - pipelines
 
-Grafana Dashboards that are associated with this stack are also kept in this repository.
+Grafana Dashboards that are associated with this stack are kept in [edgenode-dashboards](../edgenode-dashboards).

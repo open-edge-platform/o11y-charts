@@ -5,4 +5,4 @@ SPDX-License-Identifier: Apache-2.0
 
 # orch-otelcol
 
-Custom-built OpenTelemetry Collector with orchestrator specific build settings.
+Application `orch-otelcol` is a custom-built OpenTelemetry Collector with build settings specific to [edgenode-observability](../../charts/edgenode-observability) requirements.

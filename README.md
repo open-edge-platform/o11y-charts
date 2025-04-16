@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # Edge Orchestrator Observability Charts
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 [Edge Node Observability Stack]: charts/edgenode-observability
 [Edge Node Observability Dashboards]: charts/edgenode-dashboards
 [Orchestrator Observability Stack]: charts/orchestrator-observability
@@ -13,10 +15,10 @@ SPDX-License-Identifier: Apache-2.0
 [Grafana Proxy]: apps/grafana-proxy
 [OpenTelemetry Collector]: apps/orch-otelcol
 
-[Documentation]: https://github.com/open-edge-platform/orch-docs
+[Documentation]: https://docs.openedgeplatform.intel.com/edge-manage-docs/main/developer_guide/observability/arch/index.html
 [Contributor's Guide]: https://docs.openedgeplatform.intel.com/edge-manage-docs/main/developer_guide/contributor_guide/index.html
 [Edge Orchestrator Community]: https://github.com/open-edge-platform
-[Troubleshooting]: https://github.com/open-edge-platform/orch-docs
+[Troubleshooting]: https://docs.openedgeplatform.intel.com/edge-manage-docs/main/developer_guide/troubleshooting/index.html
 [Contact us]: https://github.com/open-edge-platform
 
 [Apache 2.0 License]: LICENSES/Apache-2.0.txt
