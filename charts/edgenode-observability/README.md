@@ -14,4 +14,4 @@ Key components of this centralized observability stack are:
 - **Grafana Loki** - logs backend
 - **OpenTelemetry Collector** - pipelines
 
-Grafana Dashboards that are associated with this stack are also kept in [edgenode-dashboards](../edgenode-dashboards).
+Grafana Dashboards that are associated with this stack are kept in [edgenode-dashboards](../edgenode-dashboards).
