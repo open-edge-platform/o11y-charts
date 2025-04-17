@@ -57,7 +57,22 @@ jobs:
           echo "all_changed_projects=$all_changed_projects" >> $GITHUB_OUTPUT
           echo "All Changed Projects: $all_changed_projects"
   post-merge:
-    permissions: read-all
+    permissions:
+      # it combines `read-all` with `contents: write` - all of them needed by `post-merge.yml` workflow
+      contents: write
+      actions: read
+      attestations: read
+      checks: read
+      deployments: read
+      id-token: write
+      issues: read
+      models: read
+      discussions: read
+      packages: read
+      pages: read
+      pull-requests: read
+      security-events: read
+      statuses: read
     needs: pre-checks
     # Only run the pipeline if there are changes in the projects (matrix -> project_folder will fail with empty array)
     if: ${{ needs.pre-checks.outputs.all_changed_projects != '' && toJson(fromJson(needs.pre-checks.outputs.all_changed_projects)) != '[]' }}
