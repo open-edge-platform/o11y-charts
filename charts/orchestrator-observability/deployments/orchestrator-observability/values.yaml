@@ -1022,7 +1022,7 @@ mimir-distributed:
 
 #############
 # Tempo
-############
+#############
 
 tempo:
   serviceMonitor:
