@@ -319,6 +319,6 @@
   "timezone": "",
   "title": "Provisioning Logs",
   "uid": "provisioning_logs",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
