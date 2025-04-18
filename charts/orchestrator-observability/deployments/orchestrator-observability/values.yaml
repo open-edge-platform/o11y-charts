@@ -86,8 +86,6 @@ kube-prometheus-stack:
             "X-Scope-OrgID": 'orchestrator-system'
 
 opentelemetry-operator:
-  admissionWebhooks:
-    create: false
   manager:
     targetAllocatorImage:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
@@ -95,8 +93,6 @@ opentelemetry-operator:
     securityContext:
       runAsNonRoot: true
       allowPrivilegesEscalation: false
-    env:
-      ENABLE_WEBHOOKS: "false"
 
 opentelemetryCollectorCR:
   enabled: true
