@@ -5,6 +5,7 @@ metadata:
   name: orchestrator-observability-otel
 spec:
   mode: daemonset
+  upgradeStrategy: automatic
   targetAllocator:
     enabled: true
     prometheusCR:
