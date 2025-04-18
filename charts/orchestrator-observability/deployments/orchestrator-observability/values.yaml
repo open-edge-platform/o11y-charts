@@ -10,7 +10,7 @@ import:
   mimir:
     enabled: true
   otel-operator:
-    enabled: false
+    enabled: true
   otel:
     enabled: true
   grafana:
