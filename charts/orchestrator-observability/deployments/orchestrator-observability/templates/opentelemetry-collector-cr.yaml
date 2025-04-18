@@ -192,7 +192,8 @@ apiVersion: opentelemetry.io/v1alpha1
 kind: TargetAllocator
 metadata:
   name: ta
-prometheusCR:
+spec:
+  prometheusCR:
   enabled: true
   podMonitorSelector: {}
   serviceMonitorSelector: {}
