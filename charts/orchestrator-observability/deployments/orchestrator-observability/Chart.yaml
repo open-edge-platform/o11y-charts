@@ -15,9 +15,8 @@ dependencies:
     condition: import.loki.enabled
     version: "~6.25.0"
     repository: "https://grafana.github.io/helm-charts"
-  - name: opentelemetry-collector
-    alias: opentelemetry-collector-daemonset
-    condition: import.otel.enabled
+  - name: opentelemetry-operator
+    condition: import.otel-operator.enabled
     version: "~0.114.0"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: opentelemetry-collector
