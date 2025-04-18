@@ -194,8 +194,8 @@ metadata:
   name: ta
 spec:
   prometheusCR:
-  enabled: true
-  podMonitorSelector: {}
-  serviceMonitorSelector: {}
+    enabled: true
+    podMonitorSelector: {}
+    serviceMonitorSelector: {}
 
 {{- end }}
