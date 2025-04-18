@@ -96,7 +96,7 @@ opentelemetry-operator:
       repository: "otel/opentelemetry-collector-contrib"
     securityContext:
       runAsNonRoot: true
-      allowPrivilegesEscalation: false
+      allowPrivilegeEscalation: false
     env:
       ENABLE_WEBHOOKS: "false"
 
