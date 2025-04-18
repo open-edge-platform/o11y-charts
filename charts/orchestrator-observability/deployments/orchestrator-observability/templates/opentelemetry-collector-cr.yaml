@@ -113,6 +113,7 @@ spec:
     processors:
       memory_limiter:
         limit_percentage: 70
+        check_interval: 15s
 
       resource/remove_container_id:
         attributes:
