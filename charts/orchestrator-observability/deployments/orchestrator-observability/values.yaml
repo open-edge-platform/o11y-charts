@@ -90,6 +90,8 @@ opentelemetry-operator:
     targetAllocatorImage:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
       tag: v0.123.0
+    collectorImage:
+      repository: "otel/opentelemetry-collector-contrib"
     securityContext:
       runAsNonRoot: true
       allowPrivilegesEscalation: false
