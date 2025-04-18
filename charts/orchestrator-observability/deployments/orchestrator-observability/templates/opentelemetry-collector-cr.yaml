@@ -3,10 +3,14 @@ apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
   name: orchestrator-observability-otel
-  labels:
-    opentelemetry.io/target-allocator: ta
 spec:
   mode: daemonset
+  targetAllocator:
+    enabled: true
+    prometheusCR:
+      enabled: true
+      podMonitorSelector: {}
+      serviceMonitorSelector: {}
   config:
     extensions:
       health_check:
@@ -187,16 +191,5 @@ spec:
             - batch
           exporters:
             - prometheusremotewrite
-
----
-apiVersion: opentelemetry.io/v1alpha1
-kind: TargetAllocator
-metadata:
-  name: ta
-spec:
-  prometheusCR:
-    enabled: true
-    podMonitorSelector: {}
-    serviceMonitorSelector: {}
 
 {{- end }}
