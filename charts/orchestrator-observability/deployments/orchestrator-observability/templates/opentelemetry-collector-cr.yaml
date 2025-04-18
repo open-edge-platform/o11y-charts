@@ -98,10 +98,11 @@ spec:
 
       prometheus:
         config:
-          target_allocator:
-            endpoint: http://otelcol-targetallocator
-            interval: 30s
-            collector_id: '${POD_NAME}'
+          scrape_configs:
+          - job_name: 'otel-collector'
+            scrape_interval: 60s
+            static_configs:
+            - targets: [ '0.0.0.0:8888' ]
 
     processors:
       memory_limiter:
