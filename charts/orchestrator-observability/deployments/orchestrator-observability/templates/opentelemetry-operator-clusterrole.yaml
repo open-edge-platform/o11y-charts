@@ -45,7 +45,7 @@ metadata:
   name: opentelemetry-operator-binding
 roleRef:
   kind: ClusterRole
-  name: opentelemetry-operator
+  name: opentelemetry-targetallocator-role
   apiGroup: rbac.authorization.k8s.io
 subjects:
   - kind: ServiceAccount
