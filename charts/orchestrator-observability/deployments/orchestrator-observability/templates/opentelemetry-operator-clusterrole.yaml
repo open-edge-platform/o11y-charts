@@ -18,6 +18,8 @@ rules:
     resources:
       - nodes
       - nodes/metrics
+      - nodes/proxy
+      - nodes/stats
       - services
       - endpoints
       - pods
@@ -45,7 +47,7 @@ metadata:
   name: opentelemetry-targetallocator-rb
 subjects:
   - kind: ServiceAccount
-    name: opentelemetry-opertator
+    name: opentelemetry-operator
     namespace: opentelemetry
 roleRef:
   kind: ClusterRole
