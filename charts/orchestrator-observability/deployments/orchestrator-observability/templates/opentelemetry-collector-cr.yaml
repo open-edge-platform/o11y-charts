@@ -8,6 +8,7 @@ spec:
   upgradeStrategy: automatic
   targetAllocator:
     enabled: true
+    serviceAccount: opentelemetry-targetallocator-role
     prometheusCR:
       enabled: true
       podMonitorSelector: {}
@@ -192,5 +193,4 @@ spec:
             - batch
           exporters:
             - prometheusremotewrite
-
 {{- end }}
