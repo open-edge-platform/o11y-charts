@@ -180,7 +180,6 @@ spec:
             - memory_limiter
             - resource/remove_container_id
             - resource
-            - batch
           exporters:
             - otlphttp/logs
         metrics:
@@ -190,7 +189,6 @@ spec:
             - attributes
             - transform
             - resource
-            - batch
           exporters:
             - prometheusremotewrite
 {{- end }}
