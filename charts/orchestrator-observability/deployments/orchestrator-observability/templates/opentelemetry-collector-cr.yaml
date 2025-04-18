@@ -143,14 +143,14 @@ spec:
 
     exporters:
       otlphttp/logs:
-        endpoint: {{ .Values.global.loki.otlpEndpoint }}
+        endpoint: {{ .Values.loki.endpoint }}
         headers:
-          "X-Scope-OrgID": {{ .Values.global.loki.orgId }}
+          "X-Scope-OrgID": {{ .Values.loki.orgId }}
 
       prometheusremotewrite:
-        endpoint: {{ .Values.global.mimir.remoteWrite.endpoint }}
+        endpoint: {{ .Values.mimir.endpoint }}
         headers:
-          "X-Scope-OrgID": {{ .Values.global.mimir.remoteWrite.orgId }}
+          "X-Scope-OrgID": {{ .Values.mimir.orgId }}
         resource_to_telemetry_conversion:
           enabled: true
 

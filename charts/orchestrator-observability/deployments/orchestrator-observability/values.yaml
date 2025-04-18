@@ -100,6 +100,12 @@ opentelemetry-operator:
 
 opentelemetryCollectorCR:
   enabled: true
+  loki:
+    endpoint: http://orchestrator-observability-loki-gateway/otlp
+    orgId: orchestrator-system
+  mimir:
+    endpoint: http://orchestrator-observability-mimir-gateway:8181/otlp
+    orgId: orchestrator-system
 
 #############
 #  OpenTelemetry Deployment - Gathering metrics for the cluster as a whole
