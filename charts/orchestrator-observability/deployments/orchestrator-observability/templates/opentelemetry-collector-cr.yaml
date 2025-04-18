@@ -3,14 +3,10 @@ apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
   name: orchestrator-observability-otel
+  labels:
+    opentelemetry.io/target-allocator: ta
 spec:
   mode: daemonset
-  upgradeStrategy: automatic
-  targetAllocator:
-    enabled: true
-    prometheusCR:
-      enabled: true
-    allocationStrategy: least-weighted
   config:
     extensions:
       health_check:
@@ -101,7 +97,11 @@ spec:
           - node
 
       prometheus:
-        config: {}
+        config:
+          target_allocator:
+            endpoint: http://otelcol-targetallocator
+            interval: 30s
+            collector_id: '${POD_NAME}'
 
     processors:
       memory_limiter:
@@ -186,4 +186,15 @@ spec:
             - batch
           exporters:
             - prometheusremotewrite
+
+---
+apiVersion: opentelemetry.io/v1alpha1
+kind: TargetAllocator
+metadata:
+  name: ta
+prometheusCR:
+  enabled: true
+  podMonitorSelector: {}
+  serviceMonitorSelector: {}
+
 {{- end }}
