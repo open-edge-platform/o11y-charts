@@ -1,5 +1,5 @@
 {{- if .Values.opentelemetryCollectorCR.enabled }}
-apiVersion: opentelemetry.io/v1alpha1
+apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
   name: orchestrator-observability-otel
@@ -11,7 +11,7 @@ spec:
     prometheusCR:
       enabled: true
     allocationStrategy: least-weighted
-  config: |
+  config:
     extensions:
       health_check:
         endpoint: "0.0.0.0:13133"
