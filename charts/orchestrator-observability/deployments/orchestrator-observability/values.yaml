@@ -98,6 +98,9 @@ opentelemetry-operator:
     env:
       ENABLE_WEBHOOKS: "false"
 
+opentelemetryCollectorCR:
+  enabled: true
+
 #############
 #  OpenTelemetry Deployment - Gathering metrics for the cluster as a whole
 ############
