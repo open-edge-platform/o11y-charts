@@ -7,16 +7,14 @@ SHELL := bash -eu -o pipefail
 PROJECT_NAME    := grafana-proxy
 GIT_TAG_PREFIX  := apps/grafana-proxy-v
 
-VENDOR_DIR      ?= ./vendor
-
-GOCMD           := GOPRIVATE="github.com/open-edge-platform" CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go
-GOCMD_TEST      := GOPRIVATE="github.com/open-edge-platform" CGO_ENABLED=1 GOARCH=amd64 GOOS=linux go
+GOCMD           := CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go
+GOCMD_TEST      := CGO_ENABLED=1 GOARCH=amd64 GOOS=linux go
 GOEXTRAFLAGS    :=-trimpath -gcflags="all=-spectre=all -N -l" -asmflags="all=-spectre=all" -ldflags="all=-s -w -X main.version=$(shell cat ./VERSION)"
 
 .DEFAULT_GOAL   := help
 .PHONY: build
 
-YAMLLINT_IGNORE ?= .golangci.yml, vendor, ci, trivy
+YAMLLINT_IGNORE ?= .golangci.yml, ci, trivy
 
 # Include shared makefile
 include ../../common.mk
@@ -38,7 +36,7 @@ test: ## Runs tests
 	gocover-cobertura < $(BUILD_DIR)/coverage.out > $(BUILD_DIR)/coverage.xml
 	@echo "---END MAKEFILE TEST---"
 
-docker-build: vendor common-docker-build ## Builds docker image
+docker-build: common-docker-build ## Builds docker image
 
 helm-build: ## Unsupported target
 	@echo '"make $@" is unsupported'
@@ -50,16 +48,12 @@ helm-push: ## Unsupported target
 ## CI Mandatory Targets end
 
 ## Helper Targets start
-all: clean vendor build lint test ## Runs clean, vendor, build, lint, test targets
+all: clean build lint test ## Runs clean, build, lint, test targets
 
-clean: ## Deletes build and vendor directories
+clean: ## Deletes build directory
 	@echo "---MAKEFILE CLEAN---"
 	rm -rf $(BUILD_DIR)
-	rm -rf $(VENDOR_DIR)
 	@echo "---END MAKEFILE CLEAN---"
-
-vendor: ## Runs go mod vendor command
-	$(GOCMD) mod vendor
 
 lint-go: ## Runs linters for golang source code files
 	@echo "---MAKEFILE LINT-GO---"
