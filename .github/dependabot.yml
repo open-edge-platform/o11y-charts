@@ -3,18 +3,10 @@
 
 ---
 version: 2
-registries:
-  github:
-    type: git
-    url: https://github.com
-    username: x-access-token
-    password: ${{ secrets.SYS_ORCH_GITHUB }}
 updates:
   - package-ecosystem: "gomod"
     directories:
       - "/apps/grafana-proxy"
-    registries:
-      - github
     schedule:
       interval: daily
     open-pull-requests-limit: 10
@@ -23,8 +15,6 @@ updates:
   - package-ecosystem: "gomod"
     directories:
       - "/apps/orch-otelcol/o11y-otel-contextprocessor/otelcol-dev/contextprocessor"
-    registries:
-      - github
     schedule:
       interval: daily
     groups:
@@ -35,8 +25,6 @@ updates:
       prefix: "[gomod] "
   - package-ecosystem: "github-actions"
     directory: "/"
-    registries:
-      - github
     schedule:
       interval: daily
     open-pull-requests-limit: 10

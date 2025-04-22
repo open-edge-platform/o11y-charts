@@ -44,7 +44,7 @@ DOCKER_IMAGE_TAG                  ?= $(VERSION)
 YAMLLINT_IGNORE                   ?= ".github", "ci", "trivy"
 YAMLLINT_CONFIG_DATA		      ?= {extends: default, rules: {empty-lines: {max-end: 1}, line-length: {max: 260}, braces: {min-spaces-inside: 0, max-spaces-inside: 1}, brackets: {min-spaces-inside: 0, max-spaces-inside: 1}, document-start: disable}, ignore: [$(YAMLLINT_IGNORE)]}
 
-SH_FILES_TO_LINT                  := $(shell find . \( -type d -name vendor -o -name ci \) -prune -o -type f -name '*.sh' -print)
+SH_FILES_TO_LINT                  := $(shell find . \( -type d -name ci \) -prune -o -type f -name '*.sh' -print)
 
 DOCKER_FILES_TO_LINT              := $(shell find . -type f -name 'Dockerfile*' -print )
 
@@ -109,7 +109,7 @@ helm-clean: ## Cleans the build directory of the helm chart
 
 lint-markdown: ## Runs linter for markdown files
 	@echo "---MAKEFILE LINT-MARKDOWN---"
-	markdownlint-cli2 --config ../../.markdownlint.yml '**/*.md' "!.github" "!vendor" "!ci"
+	markdownlint-cli2 --config ../../.markdownlint.yml '**/*.md' "!.github" "!ci"
 	@echo "---END MAKEFILE LINT-MARKDOWN---"
 
 lint-yaml: ## Runs linter for for yaml files
