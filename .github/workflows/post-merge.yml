@@ -30,13 +30,13 @@ jobs:
 
       - name: "Discover Changed Subfolders Inside 'apps'"
         id: discover-changes-apps
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@0.1.5
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@0.1.6
         with:
           project_folder: "./apps"
 
       - name: "Discover Changed Subfolders Inside 'charts'"
         id: discover-changes-charts
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@0.1.5
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@0.1.6
         with:
           project_folder: "./charts"
           
@@ -58,7 +58,7 @@ jobs:
           echo "All Changed Projects: $all_changed_projects"
   post-merge:
     permissions:
-      # it combines `read-all` with `contents: write` - all of them needed by `post-merge.yml` workflow
+      # it combines `read-all` with `contents: write` and `security-events: write` - all of them needed by `post-merge.yml` workflow
       contents: write
       actions: read
       attestations: read
@@ -72,7 +72,7 @@ jobs:
       pages: read
       pull-requests: read
       repository-projects: read
-      security-events: read
+      security-events: write
       statuses: read
     needs: pre-checks
     # Only run the pipeline if there are changes in the projects (matrix -> project_folder will fail with empty array)
@@ -81,14 +81,13 @@ jobs:
       fail-fast: false
       matrix:
         project_folder: ${{ fromJson(needs.pre-checks.outputs.all_changed_projects) }}
-    uses: open-edge-platform/orch-ci/.github/workflows/post-merge.yml@0.1.5
+    uses: open-edge-platform/orch-ci/.github/workflows/post-merge.yml@0.1.6
     with:
       project_folder: ${{ matrix.project_folder }}
       prefix_tag_separator: "-"
       run_version_check: true
       run_version_tag: true
-      bootstrap_tools: "go,gotools,nodejs,python,golang-lint,helm,shellcheck,hadolint,yq,jq,protolint"
-      run_security_scans: true
+      bootstrap_tools: "go,gotools,nodejs,python,golangci-lint2,helm,shellcheck,hadolint,yq,jq,protolint"
       run_dep_version_check: false
       cache_go: true
       run_build: true
