@@ -218,6 +218,8 @@ opentelemetry-collector-daemonset:
           - node
 
     processors:
+      memory_limiter:
+        limit_percentage: 70
       resource/remove_container_id:
         attributes:
           - action: delete
