@@ -219,6 +219,7 @@ opentelemetry-collector-daemonset:
 
     processors:
       memory_limiter:
+        check_interval: 5s
         limit_percentage: 70
       resource/remove_container_id:
         attributes:
@@ -355,6 +356,7 @@ opentelemetry-collector:
 
     processors:
       memory_limiter:
+        check_interval: 5s
         limit_percentage: 70
       resource/remove_container_id:
         attributes:
