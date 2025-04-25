@@ -436,7 +436,6 @@ opentelemetry-collector:
         traces:
           receivers:
             - otlp
-            - zipkin
             - jaeger
           processors:
             - probabilistic_sampler
