@@ -135,7 +135,11 @@ func main() {
 func (p *proxy) proxyHandler(reverseProxy *httputil.ReverseProxy) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p.logger.Debugf("Request received: %v", r.URL.Path)
-		p.logger.Debugf("Request headers: %v", r.Header)
+
+		// Remove Authorization header from request to avoid logging sensitive information
+		filteredHeaders := r.Header.Clone()
+		filteredHeaders.Del("Authorization")
+		p.logger.Debugf("Request headers: %v", filteredHeaders)
 
 		token := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
 		if token == "" {
