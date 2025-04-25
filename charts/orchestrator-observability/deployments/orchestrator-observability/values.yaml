@@ -218,6 +218,7 @@ opentelemetry-collector-daemonset:
           - node
 
     processors:
+      batch: {}
       memory_limiter:
         check_interval: 5s
         limit_percentage: 70
@@ -355,6 +356,7 @@ opentelemetry-collector:
           - MemoryPressure
 
     processors:
+      batch: {}
       memory_limiter:
         check_interval: 5s
         limit_percentage: 70
@@ -403,6 +405,14 @@ opentelemetry-collector:
       extensions:
         - health_check
       pipelines:
+        logs:
+          exporters:
+            - debug
+          processors:
+            - memory_limiter
+            - batch
+          receivers:
+            - otlp
         metrics:
           exporters:
             - otlphttp/metrics
