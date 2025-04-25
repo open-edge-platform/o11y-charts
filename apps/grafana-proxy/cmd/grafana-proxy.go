@@ -136,10 +136,12 @@ func (p *proxy) proxyHandler(reverseProxy *httputil.ReverseProxy) http.HandlerFu
 	return func(w http.ResponseWriter, r *http.Request) {
 		p.logger.Debugf("Request received: %v", r.URL.Path)
 
-		// Remove Authorization header from request to avoid logging sensitive information
-		filteredHeaders := r.Header.Clone()
-		filteredHeaders.Del("Authorization")
-		p.logger.Debugf("Request headers: %v", filteredHeaders)
+		// Avoid logging the full HTTP headers. Instead, log only non-sensitive metadata, such as specific header names.
+		headerNames := make([]string, 0, len(r.Header))
+		for name := range r.Header {
+			headerNames = append(headerNames, name)
+		}
+		p.logger.Debugf("Request header names: %v", headerNames)
 
 		token := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
 		if token == "" {
