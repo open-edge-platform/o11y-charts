@@ -436,7 +436,6 @@ opentelemetry-collector:
         traces:
           receivers:
             - otlp
-            - jaeger
           processors:
             - probabilistic_sampler
           exporters:
