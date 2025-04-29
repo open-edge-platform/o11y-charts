@@ -63,7 +63,7 @@ opentelemetry-collector:
     sidecar.istio.io/proxyCPULimit: 2000m
     sidecar.istio.io/proxyMemory: 32Mi
     sidecar.istio.io/proxyMemoryLimit: 512Mi
-  config:
+  alternateConfig:
     extensions:
       headers_setter:
         headers:
