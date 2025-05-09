@@ -24,6 +24,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: "Git safe directory"
         run: git config --global --add safe.directory $GITHUB_WORKSPACE
@@ -42,15 +43,16 @@ jobs:
           
       - name: "Merge Changed Subfolders"
         id: merge-changed-projects
+        env:
+          APPS_CHANGED_PROJECTS: ${{ steps.discover-changes-apps.outputs.changed_projects }}
+          CHARTS_CHANGED_PROJECTS: ${{ steps.discover-changes-charts.outputs.changed_projects }}
         run: |
           # TODO: Is there a better way to merge the two arrays in GHA?
-          apps_changed_projects='${{ steps.discover-changes-apps.outputs.changed_projects }}'
-          charts_changed_projects='${{ steps.discover-changes-charts.outputs.changed_projects }}'
-          echo "Changed Projects in apps: $apps_changed_projects"
-          echo "Changed Projects in charts: $charts_changed_projects"
+          echo "Changed Projects in apps: $APPS_CHANGED_PROJECTS"
+          echo "Changed Projects in charts: $CHARTS_CHANGED_PROJECTS"
 
           # Merge the two arrays (add 'apps/' and 'charts/') and remove empty strings (if any)
-          all_changed_projects=$(jq -c -n --argjson a "$apps_changed_projects" --argjson b "$charts_changed_projects" '
+          all_changed_projects=$(jq -c -n --argjson a "$APPS_CHANGED_PROJECTS" --argjson b "$CHARTS_CHANGED_PROJECTS" '
             ($a | map(select(. != "") | "apps/" + .)) +
             ($b | map(select(. != "") | "charts/" + .))
           ')
@@ -102,4 +104,5 @@ jobs:
       run_helm_push: true
       run_artifact: false
       run_version_dev: false
-    secrets: inherit
+      secrets:  # zizmor: ignore[secrets-inherit]
+        inherit
