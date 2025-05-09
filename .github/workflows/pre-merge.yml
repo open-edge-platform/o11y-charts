@@ -95,7 +95,7 @@ jobs:
     steps:
       - name: Final Status Check
         env:
-          PRE_MERGE_PIPELINE_RESULT: ${{ needs.pre-merge-pipeline.result }}
+          PRE_MERGE_PIPELINE_RESULT: ${{ needs.pre-merge.result }}
         run: |
           echo "Pre-merge pipeline result: $PRE_MERGE_PIPELINE_RESULT"
 
