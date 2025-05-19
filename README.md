@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 # Edge Orchestrator Observability Charts
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/open-edge-platform/o11y-charts/badge)](https://scorecard.dev/viewer/?uri=github.com/open-edge-platform/o11y-charts)
 
 [Edge Node Observability Stack]: charts/edgenode-observability
 [Edge Node Observability Dashboards]: charts/edgenode-dashboards
