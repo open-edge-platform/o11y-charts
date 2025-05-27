@@ -130,7 +130,7 @@ opentelemetry-collector-daemonset:
       enabled: true
     logsCollection:
       enabled: true
-  config:
+  alternateConfig:
     extensions:
       health_check:
         endpoint: "0.0.0.0:13133"
@@ -218,6 +218,10 @@ opentelemetry-collector-daemonset:
           - node
 
     processors:
+      batch: {}
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 70
       resource/remove_container_id:
         attributes:
           - action: delete
@@ -335,7 +339,7 @@ opentelemetry-collector:
       enabled: true
     kubernetesEvents:
       enabled: true
-  config:
+  alternateConfig:
     extensions:
       health_check:
         endpoint: "0.0.0.0:13133"
@@ -350,9 +354,19 @@ opentelemetry-collector:
         node_conditions_to_report:
           - Ready
           - MemoryPressure
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: opentelemetry-collector
+              scrape_interval: 10s
+              static_configs:
+                - targets:
+                    - ${env:MY_POD_IP}:8888
 
     processors:
+      batch: {}
       memory_limiter:
+        check_interval: 5s
         limit_percentage: 70
       resource/remove_container_id:
         attributes:
@@ -399,6 +413,14 @@ opentelemetry-collector:
       extensions:
         - health_check
       pipelines:
+        logs:
+          exporters:
+            - debug
+          processors:
+            - memory_limiter
+            - batch
+          receivers:
+            - otlp
         metrics:
           exporters:
             - otlphttp/metrics
@@ -414,8 +436,6 @@ opentelemetry-collector:
         traces:
           receivers:
             - otlp
-            - zipkin
-            - jaeger
           processors:
             - probabilistic_sampler
           exporters:
