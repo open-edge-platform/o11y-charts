@@ -249,6 +249,29 @@ opentelemetry-collector-daemonset:
               - set(attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
               - set(attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
               - set(attributes["k8s_statefulset_name"], resource.attributes["k8s.statefulset.name"])
+      transform/logs:
+        error_mode: ignore
+        log_statements:
+          - context: log
+            conditions:
+              # JSON format
+              - attributes["source_format"] == "json"
+            statements:
+              # Map fields from JSON format to unified structure
+              - set(attributes["unified_time"], attributes["time"])
+              - set(attributes["unified_level"], attributes["level"])
+              - set(attributes["unified_caller"], attributes["caller"])
+              - set(attributes["unified_msg"], attributes["message"])
+          - context: log
+            conditions:
+              # plain text format
+              - attributes["source_format"] == "plaintext"
+            statements:
+              # Extract and map fields from plain text format to unified structure
+              - set(attributes["unified_time"], parse_time(attributes["log"], "regex_for_time"))
+              - set(attributes["unified_level"], parse_level(attributes["log"], "regex_for_level"))
+              - set(attributes["unified_caller"], parse_caller(attributes["log"], "regex_for_caller"))
+              - set(attributes["unified_msg"], parse_msg(attributes["log"], "regex_for_msg"))
     service:
       telemetry:
         metrics:
