@@ -221,7 +221,8 @@ opentelemetry-collector-daemonset:
       batch: {}
       memory_limiter:
         check_interval: 5s
-        limit_percentage: 70
+        limit_percentage: 80
+        spike_limit_percentage: 25
       resource/remove_container_id:
         attributes:
           - action: delete
@@ -355,7 +356,8 @@ opentelemetry-collector:
       batch: {}
       memory_limiter:
         check_interval: 5s
-        limit_percentage: 70
+        limit_percentage: 80
+        spike_limit_percentage: 25
       resource/remove_container_id:
         attributes:
           - action: delete
