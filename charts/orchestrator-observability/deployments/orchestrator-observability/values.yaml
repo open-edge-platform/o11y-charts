@@ -256,7 +256,6 @@ opentelemetry-collector-daemonset:
     service:
       telemetry:
         metrics:
-          address: ${env:MY_POD_IP}:8888
           level: "basic"
           readers:
             - pull:
