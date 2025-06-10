@@ -403,6 +403,7 @@ opentelemetry-collector:
       extensions:
         - health_check
       pipelines:
+        # logs pipeline is required for kubernetesEvents preset to work
         logs:
           exporters:
             - otlphttp/logs
