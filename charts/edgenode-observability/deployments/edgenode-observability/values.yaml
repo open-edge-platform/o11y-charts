@@ -255,8 +255,6 @@ opentelemetry-collector:
           job: true
         auth:
           authenticator: headers_setter
-      debug:
-        verbosity: detailed
       prometheusremotewrite:
         endpoint: "http://edgenode-observability-mimir-gateway:8181/api/v1/push"
         resource_to_telemetry_conversion:
@@ -968,7 +966,7 @@ mimir-distributed:
                   app.kubernetes.io/name: mimir
               topologyKey: kubernetes.io/hostname
   querier:
-    replicas: 1
+    replicas: 2
     resources:
       requests:
         cpu: 10m
@@ -994,6 +992,7 @@ mimir-distributed:
                   app.kubernetes.io/name: mimir
               topologyKey: kubernetes.io/hostname
   query_frontend:
+    replicas: 2
     resources:
       requests:
         cpu: 10m
