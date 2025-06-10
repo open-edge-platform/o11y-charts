@@ -403,6 +403,14 @@ opentelemetry-collector:
       extensions:
         - health_check
       pipelines:
+        logs:
+          exporters:
+            - otlphttp/logs
+          processors:
+            - memory_limiter
+            - batch
+          receivers:
+            - otlp
         metrics:
           exporters:
             - otlphttp/metrics
