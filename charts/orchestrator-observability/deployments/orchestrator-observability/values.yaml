@@ -285,6 +285,7 @@ opentelemetry-collector-daemonset:
             - resource/remove_container_id
             - resource
             - batch
+            - transform/logs
           receivers:
             - otlp
         metrics:
@@ -293,7 +294,7 @@ opentelemetry-collector-daemonset:
           processors:
             - memory_limiter
             - attributes
-            - transform
+            - transform/metrics
             - batch
           receivers:
             - prometheus
