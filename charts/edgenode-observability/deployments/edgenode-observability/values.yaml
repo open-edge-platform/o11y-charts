@@ -966,7 +966,7 @@ mimir-distributed:
                   app.kubernetes.io/name: mimir
               topologyKey: kubernetes.io/hostname
   querier:
-    replicas: 2
+    replicas: 1
     resources:
       requests:
         cpu: 10m
@@ -992,7 +992,6 @@ mimir-distributed:
                   app.kubernetes.io/name: mimir
               topologyKey: kubernetes.io/hostname
   query_frontend:
-    replicas: 2
     resources:
       requests:
         cpu: 10m
