@@ -130,7 +130,7 @@ opentelemetry-collector-daemonset:
       enabled: true
     logsCollection:
       enabled: true
-  config:
+  alternateConfig:
     extensions:
       health_check:
         endpoint: "0.0.0.0:13133"
@@ -216,8 +216,12 @@ opentelemetry-collector-daemonset:
           - pod
           - volume
           - node
-
     processors:
+      batch: {}
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
       resource/remove_container_id:
         attributes:
           - action: delete
@@ -284,8 +288,6 @@ opentelemetry-collector-daemonset:
             - prometheus
             - otlp
     exporters:
-      debug:
-        verbosity: detailed
       otlphttp/metrics:
         endpoint: "http://orchestrator-observability-mimir-gateway:8181/otlp"
         headers:
@@ -294,16 +296,6 @@ opentelemetry-collector-daemonset:
         endpoint: http://orchestrator-observability-loki-gateway/otlp
         headers:
           "X-Scope-OrgID": orchestrator-system
-      prometheusremotewrite:
-        endpoint: "http://orchestrator-observability-mimir-gateway:8181/api/v1/push"
-        headers:
-          "X-Scope-OrgID": 'orchestrator-system'
-        # wal: # Enabling the Write-Ahead-Log for the exporter.
-        #   # directory: ./prom_rw # The directory to store the WAL in
-        #   buffer_size: 100 # Optional count of elements to be read from the WAL before truncating; default of 300
-        #   truncate_frequency: 45s # Optional frequency for how often the WAL should be truncated. It is a time.ParseDuration; default of 1m
-        resource_to_telemetry_conversion:
-          enabled: true  # Convert resource attributes to metric labels
   ports:
     metrics:
       enabled: true
@@ -335,7 +327,7 @@ opentelemetry-collector:
       enabled: true
     kubernetesEvents:
       enabled: true
-  config:
+  alternateConfig:
     extensions:
       health_check:
         endpoint: "0.0.0.0:13133"
@@ -350,10 +342,20 @@ opentelemetry-collector:
         node_conditions_to_report:
           - Ready
           - MemoryPressure
-
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: opentelemetry-collector
+              scrape_interval: 10s
+              static_configs:
+                - targets:
+                    - ${env:MY_POD_IP}:8888
     processors:
+      batch: {}
       memory_limiter:
-        limit_percentage: 70
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
       resource/remove_container_id:
         attributes:
           - action: delete
@@ -399,6 +401,15 @@ opentelemetry-collector:
       extensions:
         - health_check
       pipelines:
+        # logs pipeline is required for kubernetesEvents preset to work
+        logs:
+          exporters:
+            - otlphttp/logs
+          processors:
+            - memory_limiter
+            - batch
+          receivers:
+            - otlp
         metrics:
           exporters:
             - otlphttp/metrics
@@ -414,14 +425,12 @@ opentelemetry-collector:
         traces:
           receivers:
             - otlp
-            - zipkin
-            - jaeger
           processors:
             - probabilistic_sampler
           exporters:
-            - otlp
+            - otlp/traces
     exporters:
-      otlp:
+      otlp/traces:
         headers:
           "X-Scope-OrgID": 'orchestrator-system'
         # Doc: https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlpexporter
@@ -439,18 +448,6 @@ opentelemetry-collector:
         endpoint: http://orchestrator-observability-loki-gateway/otlp
         headers:
           "X-Scope-OrgID": orchestrator-system
-      debug:
-        verbosity: detailed
-      prometheusremotewrite:
-        endpoint: "http://orchestrator-observability-mimir-gateway:8181/api/v1/push"
-        headers:
-          "X-Scope-OrgID": 'orchestrator-system'
-        # wal: # Enabling the Write-Ahead-Log for the exporter.
-        #   # directory: ./prom_rw # The directory to store the WAL in
-        #   buffer_size: 100 # Optional count of elements to be read from the WAL before truncating; default of 300
-        #   truncate_frequency: 45s # Optional frequency for how often the WAL should be truncated. It is a time.ParseDuration; default of 1m
-        resource_to_telemetry_conversion:
-          enabled: true  # Convert resource attributes to metric labels
   ports:
     metrics:
       enabled: true
