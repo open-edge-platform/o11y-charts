@@ -589,6 +589,7 @@ loki:
     affinity:
       podAntiAffinity: null
   gateway:
+    verboseLogging: false
     resources:
       requests:
         cpu: 10m
@@ -948,6 +949,7 @@ mimir-distributed:
       orchestrator/service: observability
     enabledNonEnterprise: true
     nginx:
+      verboseLogging: false
       config:
         serverSnippet: |
           proxy_http_version 1.1;
