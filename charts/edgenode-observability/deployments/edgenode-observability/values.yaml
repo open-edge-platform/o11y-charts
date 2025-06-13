@@ -438,6 +438,7 @@ loki:
                   app.kubernetes.io/name: loki
               topologyKey: kubernetes.io/hostname
   gateway:
+    verboseLogging: false
     resources:
       requests:
         cpu: 10m
@@ -905,6 +906,7 @@ mimir-distributed:
               topologyKey: kubernetes.io/hostname
     enabledNonEnterprise: true
     nginx:
+      verboseLogging: false
       config:
         serverSnippet: |
           proxy_http_version 1.1;

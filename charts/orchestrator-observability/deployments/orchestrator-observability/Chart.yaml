@@ -5,11 +5,11 @@ apiVersion: v2
 name: orchestrator-observability
 description: Orchestrator centralized observability
 type: application
-version: 0.5.2-dev
-appVersion: 0.5.2-dev
+version: 0.5.3
+appVersion: 0.5.3
 annotations:
-  revision: e15834ec7986322f184e4f1e2bb5c1f622d7b52f
-  created: "2025-04-16T13:31:02Z"
+  revision: 7ddf57800b8deb5cb955c789357f9204be8d000a
+  created: "2025-06-13T10:20:08Z"
 dependencies:
   - name: loki
     condition: import.loki.enabled
