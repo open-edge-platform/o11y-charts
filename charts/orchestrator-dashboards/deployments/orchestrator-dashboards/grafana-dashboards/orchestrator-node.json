@@ -615,7 +615,7 @@
             "uid": "orchestrator-mimir"
           },
           "editorMode": "code",
-          "expr": "avg(sum(k8s_node_cpu_utilization{k8s_node_name=\"$instance\"})/sum(k8s_node_allocatable_cpu{k8s_node_name=\"$instance\"}))",
+          "expr": "avg(sum(k8s_node_cpu_usage{k8s_node_name=\"$instance\"})/sum(k8s_node_allocatable_cpu{k8s_node_name=\"$instance\"}))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -862,7 +862,7 @@
                 "uid": "orchestrator-mimir"
               },
               "editorMode": "code",
-              "expr": "label_replace(label_replace((sum(container_cpu_utilization{k8s_node_name=\"$instance\"}) by (k8s_pod_name,k8s_namespace_name))*1000,\"pod\",\"$1\",\"k8s_pod_name\",\"(.*)\"),\"namespace\",\"$1\",\"k8s_namespace_name\",\"(.*)\")",
+              "expr": "label_replace(label_replace((sum(container_cpu_usage{k8s_node_name=\"$instance\"}) by (k8s_pod_name,k8s_namespace_name))*1000,\"pod\",\"$1\",\"k8s_pod_name\",\"(.*)\"),\"namespace\",\"$1\",\"k8s_namespace_name\",\"(.*)\")",
               "format": "table",
               "hide": false,
               "instant": false,
@@ -1330,7 +1330,7 @@
                 "uid": "orchestrator-mimir"
               },
               "editorMode": "code",
-              "expr": "sum(k8s_node_cpu_utilization{k8s_node_name=\"$instance\"})/sum(k8s_node_allocatable_cpu{k8s_node_name=\"$instance\"})",
+              "expr": "sum(k8s_node_cpu_usage{k8s_node_name=\"$instance\"})/sum(k8s_node_allocatable_cpu{k8s_node_name=\"$instance\"})",
               "instant": false,
               "interval": "$resolution",
               "legendFormat": "$instance",
@@ -1432,7 +1432,7 @@
                 "uid": "orchestrator-mimir"
               },
               "editorMode": "code",
-              "expr": "sum(k8s_pod_cpu_utilization{k8s_node_name=\"$instance\"}*1000) by (k8s_namespace_name) ",
+              "expr": "sum(k8s_pod_cpu_usage{k8s_node_name=\"$instance\"}*1000) by (k8s_namespace_name) ",
               "instant": false,
               "interval": "$resolution",
               "legendFormat": "{{name}}",
