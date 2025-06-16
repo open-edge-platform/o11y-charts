@@ -5,24 +5,24 @@ apiVersion: v2
 name: orchestrator-observability
 description: Orchestrator centralized observability
 type: application
-version: 0.5.2-dev
-appVersion: 0.5.2-dev
+version: 0.5.4
+appVersion: 0.5.4
 annotations:
-  revision: e15834ec7986322f184e4f1e2bb5c1f622d7b52f
-  created: "2025-04-16T13:31:02Z"
+  revision: e3c23e2bc3f5c4c0b3e81d37c5c8a4778a117aff
+  created: "2025-06-13T11:34:15Z"
 dependencies:
   - name: loki
     condition: import.loki.enabled
-    version: "~6.25.0"
+    version: "~6.30.1"
     repository: "https://grafana.github.io/helm-charts"
   - name: opentelemetry-collector
     alias: opentelemetry-collector-daemonset
     condition: import.otel.enabled
-    version: "~0.114.0"
+    version: "~0.126.0"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: opentelemetry-collector
     condition: import.otel.enabled
-    version: "~0.114.0"
+    version: "~0.126.0"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: minio
     alias: minio
@@ -31,11 +31,11 @@ dependencies:
     condition: import.minio.enabled
   - name: mimir-distributed
     condition: import.mimir.enabled
-    version: "~5.6.0"
+    version: "~5.7.0"
     repository: "https://grafana.github.io/helm-charts"
   - name: grafana
     alias: grafana
-    version: "8.8.5"
+    version: "9.2.2"
     repository: https://grafana.github.io/helm-charts
     condition: import.grafana.enabled
   - name: tempo

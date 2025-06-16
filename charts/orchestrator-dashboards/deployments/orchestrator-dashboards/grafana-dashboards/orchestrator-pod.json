@@ -817,7 +817,7 @@
                 "uid": "orchestrator-mimir"
               },
               "editorMode": "code",
-              "expr": "sum(container_cpu_utilization{k8s_pod_name=\"$pod\",k8s_namespace_name=\"$namespace\"}*1000)",
+              "expr": "sum(container_cpu_usage{k8s_pod_name=\"$pod\",k8s_namespace_name=\"$namespace\"}*1000)",
               "instant": false,
               "interval": "$resolution",
               "legendFormat": "$pod",
@@ -1014,7 +1014,7 @@
                 "uid": "orchestrator-mimir"
               },
               "editorMode": "code",
-              "expr": "container_cpu_utilization{k8s_pod_name=\"$pod\",k8s_namespace_name=\"$namespace\"}*1000",
+              "expr": "container_cpu_usage{k8s_pod_name=\"$pod\",k8s_namespace_name=\"$namespace\"}*1000",
               "instant": false,
               "interval": "$resolution",
               "legendFormat": "{{k8s_container_name}}",

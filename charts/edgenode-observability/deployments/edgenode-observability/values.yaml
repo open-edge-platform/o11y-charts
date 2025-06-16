@@ -63,7 +63,7 @@ opentelemetry-collector:
     sidecar.istio.io/proxyCPULimit: 2000m
     sidecar.istio.io/proxyMemory: 32Mi
     sidecar.istio.io/proxyMemoryLimit: 512Mi
-  config:
+  alternateConfig:
     extensions:
       headers_setter:
         headers:
@@ -255,8 +255,6 @@ opentelemetry-collector:
           job: true
         auth:
           authenticator: headers_setter
-      debug:
-        verbosity: detailed
       prometheusremotewrite:
         endpoint: "http://edgenode-observability-mimir-gateway:8181/api/v1/push"
         resource_to_telemetry_conversion:
@@ -440,6 +438,7 @@ loki:
                   app.kubernetes.io/name: loki
               topologyKey: kubernetes.io/hostname
   gateway:
+    verboseLogging: false
     resources:
       requests:
         cpu: 10m
@@ -907,6 +906,7 @@ mimir-distributed:
               topologyKey: kubernetes.io/hostname
     enabledNonEnterprise: true
     nginx:
+      verboseLogging: false
       config:
         serverSnippet: |
           proxy_http_version 1.1;
