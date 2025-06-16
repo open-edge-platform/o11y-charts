@@ -288,8 +288,8 @@ opentelemetry-collector-daemonset:
             - memory_limiter
             - resource/remove_container_id
             - resource
-            - batch
             - transform/logs
+            - batch
           receivers:
             - otlp
         metrics:
