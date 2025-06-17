@@ -253,7 +253,6 @@ opentelemetry-collector-daemonset:
               - set(attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
               - set(attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
               - set(attributes["k8s_statefulset_name"], resource.attributes["k8s.statefulset.name"])
-
       transform/logs:
         error_mode: ignore
         log_statements:
@@ -263,23 +262,6 @@ opentelemetry-collector-daemonset:
               - delete_key(attributes, "msg")
               - set(attributes["time"], attributes["timestamp"])
               - delete_key(attributes, "timestamp")
-      # Unstructured logs 
-      # extract_grok_patterns:
-      #   patterns:
-      #     - pattern: "%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:log.level} %{GREEDYDATA:log.message}"
-      #       named_captures_only: true
-      
-      #try to extract msg field from log
-      # extract:
-      #   field: body
-      #   json:
-      #     expressions:
-      #       message: object.note
-
-      # regex_parser:
-      #   field: body  
-      #   regex: 'msg="(?P<msg>[^"]+)"'  
-      #   name: message
     service:
       telemetry:
         metrics:
