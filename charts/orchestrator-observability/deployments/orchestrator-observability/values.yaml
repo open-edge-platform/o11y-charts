@@ -105,7 +105,6 @@ opentelemetry-collector-daemonset:
   mode: daemonset
   image:
     repository: otel/opentelemetry-collector-contrib
-    tag: 0.118.0
   resources:
     requests:
       cpu: 10m
@@ -245,7 +244,6 @@ opentelemetry-collector-daemonset:
             value: "platform-daemonset"
       transform:
         metric_statements:
-          - context: datapoint
             statements:
               - set(attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
               - set(attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
@@ -310,7 +308,6 @@ opentelemetry-collector:
   mode: deployment
   image:
     repository: otel/opentelemetry-collector-contrib
-    tag: 0.118.0
   resources:
     requests:
       cpu: 10m
@@ -380,7 +377,6 @@ opentelemetry-collector:
             value: "platform-deployment"
       transform:
         metric_statements:
-          - context: datapoint
             statements:
               - set(attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
               - set(attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
