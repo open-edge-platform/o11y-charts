@@ -83,7 +83,7 @@ kube-prometheus-stack:
         - name: orchestrator-admin
           url: "http://orchestrator-observability-mimir-gateway:8181/api/v1/push"
           headers:
-            "X-Scope-OrgID": "orchestrator-system"
+            "X-Scope-OrgID": 'orchestrator-system'
 
 opentelemetry-operator:
   admissionWebhooks:
@@ -114,13 +114,15 @@ opentelemetry-collector-daemonset:
       memory: 512Mi
   command:
     name: otelcol-contrib
+    extraArgs:
+      - "--feature-gates=receiver.kubeletstats.enableCPUUsageMetrics"
   clusterRole:
     rules:
       # Only needed if you are using extra_metadata_labels or
       # are collecting the request/limit utilization metrics
-      - apiGroups: [""]
-        resources: ["nodes/proxy"]
-        verbs: ["get"]
+      - apiGroups: [ "" ]
+        resources: [ "nodes/proxy" ]
+        verbs: [ "get" ]
   securityContext:
     privileged: false
   presets:
@@ -170,7 +172,7 @@ opentelemetry-collector-daemonset:
           - id: parser-containerd
             regex: ^(?P<time>[^ ^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$
             timestamp:
-              layout: "%Y-%m-%dT%H:%M:%S.%LZ"
+              layout: '%Y-%m-%dT%H:%M:%S.%LZ'
               parse_from: attributes.time
             type: regex_parser
           - combine_field: attributes.log
@@ -184,7 +186,7 @@ opentelemetry-collector-daemonset:
           - id: parser-docker
             output: extract_metadata_from_filepath
             timestamp:
-              layout: "%Y-%m-%dT%H:%M:%S.%LZ"
+              layout: '%Y-%m-%dT%H:%M:%S.%LZ'
               parse_from: attributes.time
             type: json_parser
           - id: extract_metadata_from_filepath
@@ -244,13 +246,15 @@ opentelemetry-collector-daemonset:
             value: "platform-daemonset"
       transform:
         metric_statements:
-          - set(datapoint.attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
-          - set(datapoint.attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
-          - set(datapoint.attributes["k8s_daemonset_name"], resource.attributes["k8s.daemonset.name"])
-          - set(datapoint.attributes["k8s_deployment_name"], resource.attributes["k8s.deployment.name"])
-          - set(datapoint.attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
-          - set(datapoint.attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
-          - set(datapoint.attributes["k8s_statefulset_name"], resource.attributes["k8s.statefulset.name"])
+          - context: datapoint
+            statements:
+              - set(attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
+              - set(attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
+              - set(attributes["k8s_daemonset_name"], resource.attributes["k8s.daemonset.name"])
+              - set(attributes["k8s_deployment_name"], resource.attributes["k8s.deployment.name"])
+              - set(attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
+              - set(attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
+              - set(attributes["k8s_statefulset_name"], resource.attributes["k8s.statefulset.name"])
     service:
       telemetry:
         metrics:
@@ -289,7 +293,7 @@ opentelemetry-collector-daemonset:
       otlphttp/metrics:
         endpoint: "http://orchestrator-observability-mimir-gateway:8181/otlp"
         headers:
-          "X-Scope-OrgID": "orchestrator-system"
+          "X-Scope-OrgID": 'orchestrator-system'
       otlphttp/logs:
         endpoint: http://orchestrator-observability-loki-gateway/otlp
         headers:
@@ -297,6 +301,7 @@ opentelemetry-collector-daemonset:
   ports:
     metrics:
       enabled: true
+
 
 #############
 #  OpenTelemetry Deployment - Gathering metrics for the cluster as a whole
@@ -375,10 +380,12 @@ opentelemetry-collector:
             value: "platform-deployment"
       transform:
         metric_statements:
-          - set(datapoint.attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
-          - set(datapoint.attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
-          - set(datapoint.attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
-          - set(datapoint.attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
+          - context: datapoint
+            statements:
+              - set(attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
+              - set(attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
+              - set(attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
+              - set(attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
 
       probabilistic_sampler:
         sampling_percentage: 15
@@ -427,7 +434,7 @@ opentelemetry-collector:
     exporters:
       otlp/traces:
         headers:
-          "X-Scope-OrgID": "orchestrator-system"
+          "X-Scope-OrgID": 'orchestrator-system'
         # Doc: https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlpexporter
         endpoint: orchestrator-observability-tempo:4317
         sending_queue:
@@ -438,7 +445,7 @@ opentelemetry-collector:
       otlphttp/metrics:
         endpoint: "http://orchestrator-observability-mimir-gateway:8181/otlp"
         headers:
-          "X-Scope-OrgID": "orchestrator-system"
+          "X-Scope-OrgID": 'orchestrator-system'
       otlphttp/logs:
         endpoint: http://orchestrator-observability-loki-gateway/otlp
         headers:
@@ -731,18 +738,18 @@ grafana:
           uid: orchestrator-mimir
           isDefault: true
           jsonData:
-            httpHeaderName1: "X-Scope-OrgID"
+            httpHeaderName1: 'X-Scope-OrgID'
           secureJsonData:
-            httpHeaderValue1: "orchestrator-system"
+            httpHeaderValue1: 'orchestrator-system'
         - name: Orchestrator-Loki
           type: loki
           url: "http://orchestrator-observability-loki-gateway"
           access: proxy
           uid: orchestrator-loki
           jsonData:
-            httpHeaderName1: "X-Scope-OrgID"
+            httpHeaderName1: 'X-Scope-OrgID'
           secureJsonData:
-            httpHeaderValue1: "orchestrator-system"
+            httpHeaderValue1: 'orchestrator-system'
         - name: Orchestrator-Tempo
           type: tempo
           uid: orchestrator-tempo
@@ -750,10 +757,10 @@ grafana:
           access: proxy
           basicAuth: false
           jsonData:
-            httpHeaderName1: "X-Scope-OrgID"
+            httpHeaderName1: 'X-Scope-OrgID'
             httpMethod: GET
             serviceMap:
-              datasourceUid: "orchestrator-mimir"
+              datasourceUid: 'orchestrator-mimir'
             nodeGraph:
               enabled: true
             search:
@@ -762,13 +769,13 @@ grafana:
             #   datasourceUid: 'orchestrator-loki'
             #   tags: ['app', 'namespace','pod']
             lokiSearch:
-              datasourceUid: "orchestrator-loki"
+              datasourceUid: 'orchestrator-loki'
           secureJsonData:
-            httpHeaderValue1: "orchestrator-system"
+            httpHeaderValue1: 'orchestrator-system'
           traceQuery:
             timeShiftEnabled: true
-            spanStartTimeShift: "1h"
-            spanEndTimeShift: "-1h"
+            spanStartTimeShift: '1h'
+            spanEndTimeShift: '-1h'
   defaultDashboardsEnabled: false
   sidecar:
     dashboards:
@@ -922,7 +929,7 @@ mimir-distributed:
         cpu: 10m
         memory: 32Mi
       limits:
-        cpu: "2"
+        cpu: '2'
         memory: 3Gi
     replicas: 2
     zoneAwareReplication:
@@ -972,7 +979,7 @@ mimir-distributed:
         cpu: 10m
         memory: 32Mi
       limits:
-        cpu: "3"
+        cpu: '3'
         memory: 512Mi
     podLabels:
       orchestrator/service: observability
@@ -981,7 +988,7 @@ mimir-distributed:
     resources:
       requests:
         cpu: 10m
-        memory: 32Mi # reduced vs chart's default 512Mi
+        memory: 32Mi  # reduced vs chart's default 512Mi
       limits:
         cpu: 2000m
         memory: 1024Mi
