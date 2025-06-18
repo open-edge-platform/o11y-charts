@@ -244,13 +244,13 @@ opentelemetry-collector-daemonset:
             value: "platform-daemonset"
       transform:
         metric_statements:
-          - set(attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
-          - set(attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
-          - set(attributes["k8s_daemonset_name"], resource.attributes["k8s.daemonset.name"])
-          - set(attributes["k8s_deployment_name"], resource.attributes["k8s.deployment.name"])
-          - set(attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
-          - set(attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
-          - set(attributes["k8s_statefulset_name"], resource.attributes["k8s.statefulset.name"])
+          - set(datapoint.attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
+          - set(datapoint.attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
+          - set(datapoint.attributes["k8s_daemonset_name"], resource.attributes["k8s.daemonset.name"])
+          - set(datapoint.attributes["k8s_deployment_name"], resource.attributes["k8s.deployment.name"])
+          - set(datapoint.attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
+          - set(datapoint.attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
+          - set(datapoint.attributes["k8s_statefulset_name"], resource.attributes["k8s.statefulset.name"])
     service:
       telemetry:
         metrics:
@@ -375,10 +375,10 @@ opentelemetry-collector:
             value: "platform-deployment"
       transform:
         metric_statements:
-          - set(attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
-          - set(attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
-          - set(attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
-          - set(attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
+          - set(datapoint.attributes["k8s_namespace_name"], resource.attributes["k8s.namespace.name"])
+          - set(datapoint.attributes["k8s_container_name"], resource.attributes["k8s.container.name"])
+          - set(datapoint.attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
+          - set(datapoint.attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
 
       probabilistic_sampler:
         sampling_percentage: 15
