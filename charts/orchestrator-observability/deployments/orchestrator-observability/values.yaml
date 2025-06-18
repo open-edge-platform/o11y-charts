@@ -253,6 +253,15 @@ opentelemetry-collector-daemonset:
               - set(attributes["k8s_node_name"], resource.attributes["k8s.node.name"])
               - set(attributes["k8s_pod_name"], resource.attributes["k8s.pod.name"])
               - set(attributes["k8s_statefulset_name"], resource.attributes["k8s.statefulset.name"])
+      # transform/logs:
+      #   error_mode: ignore
+      #   log_statements:
+      #     - context: log
+      #       statements:
+      #         - set(attributes["message"], attributes["msg"])
+      #         - delete_key(attributes, "msg")
+      #         # - set(attributes["time"], attributes["timestamp"])
+      #         # - delete_key(attributes, "timestamp")
     service:
       telemetry:
         metrics:
@@ -273,6 +282,7 @@ opentelemetry-collector-daemonset:
             - memory_limiter
             - resource/remove_container_id
             - resource
+            # - transform/logs
             - batch
           receivers:
             - otlp
