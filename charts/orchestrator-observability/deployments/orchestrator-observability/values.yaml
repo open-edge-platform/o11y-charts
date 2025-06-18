@@ -242,7 +242,7 @@ opentelemetry-collector-daemonset:
           - action: insert
             key: otelcol_source
             value: "platform-daemonset"
-      transform/metrics:
+      transform:
         metric_statements:
           - context: datapoint
             statements:
@@ -282,12 +282,14 @@ opentelemetry-collector-daemonset:
           processors:
             - memory_limiter
             - attributes
-            - transform/metrics
+            - transform
             - batch
           receivers:
             - prometheus
             - otlp
     exporters:
+      debug:
+          verbosity: detailed
       otlphttp/metrics:
         endpoint: "http://orchestrator-observability-mimir-gateway:8181/otlp"
         headers:
