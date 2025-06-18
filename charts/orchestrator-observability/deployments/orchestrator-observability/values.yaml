@@ -114,6 +114,7 @@ opentelemetry-collector-daemonset:
       memory: 512Mi
   command:
     name: otelcol-contrib
+    # Remove after upgrading to otelcol-control version later than 0.125.0 - this feature flag is enabled by default since then.
     extraArgs:
       - "--feature-gates=receiver.kubeletstats.enableCPUUsageMetrics"
   clusterRole:
