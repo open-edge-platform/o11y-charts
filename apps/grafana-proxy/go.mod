@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.1
 
 require (
-	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/golang-jwt/jwt/v5 v5.2.3
 	github.com/open-edge-platform/o11y-tenant-controller v0.6.0
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/zap v1.27.0
