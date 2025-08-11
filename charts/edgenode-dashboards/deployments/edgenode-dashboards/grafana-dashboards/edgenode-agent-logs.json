@@ -290,11 +290,6 @@
           },
           {
             "selected": false,
-            "text": "License Agent",
-            "value": "LicenseAgent"
-          },
-          {
-            "selected": false,
             "text": "Node Agent",
             "value": "NodeAgent"
           },
@@ -315,18 +310,8 @@
           },
           {
             "selected": false,
-            "text": "RKE Server",
-            "value": "RKE_Server"
-          },
-          {
-            "selected": false,
-            "text": "RKE System Agent",
-            "value": "RKE_System_Agent"
-          },
-          {
-            "selected": false,
-            "text": "Caddy",
-            "value": "caddy"
+            "text": "Platform Manageability Agent",
+            "value": "Platform_Manageability_Agent"
           },
           {
             "selected": false,
@@ -374,7 +359,7 @@
             "value": "INBM_Update_Status"
           }
         ],
-        "query": "Cluster Agent : ClusterAgent, Hardware Agent : HardwareAgent, License Agent : LicenseAgent, Node Agent : NodeAgent, OpenTelemetry Collector : OpenTelemetry_Collector, Platform Update Agent : PlatformUpdateAgent, Platform Telemetry Agent : Platform_Telemetry_Agent, RKE Server : RKE_Server, RKE System Agent : RKE_System_Agent, Caddy : caddy , Telegraf : Telegraf , Installer : installer, Apt Install History Logs : AptInstallLogs, INBM : INBM, INBM Dispatcher : INBM_Dispatcher, INBM Configuration : INBM_Configuration, INBM Diagnostic : INBM_Diagnostic, INBM Telemetry : INBM_Telemetry, INBM Update Status : INBM_Update_Status",
+        "query": "Cluster Agent : ClusterAgent, Hardware Agent : HardwareAgent, Node Agent : NodeAgent, OpenTelemetry Collector : OpenTelemetry_Collector, Platform Update Agent : PlatformUpdateAgent, Platform Telemetry Agent : Platform_Telemetry_Agent, Platform Manageability Agent : Platform_Manageability_Agent, Telegraf : Telegraf , Installer : installer, Apt Install History Logs : AptInstallLogs, INBM : INBM, INBM Dispatcher : INBM_Dispatcher, INBM Configuration : INBM_Configuration, INBM Diagnostic : INBM_Diagnostic, INBM Telemetry : INBM_Telemetry, INBM Update Status : INBM_Update_Status",
         "type": "custom"
       },
       {
