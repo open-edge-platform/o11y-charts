@@ -1,8 +1,6 @@
 module github.com/open-edge-platform/o11y-charts/apps/grafana-proxy
 
-go 1.24.0
-
-toolchain go1.24.1
+go 1.24.6
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.3.0
