@@ -5,8 +5,8 @@ apiVersion: v2
 name: edgenode-observability
 description: Edge Node Centralized Observability
 type: application
-version: 0.10.4
-appVersion: 0.10.4
+version: 0.10.5
+appVersion: 0.10.5
 annotations:
   revision: 1c180a61519ee9ec158aa38e0f54a27096bd4239
   created: "2025-06-18T12:12:12Z"
