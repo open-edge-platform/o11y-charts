@@ -30,17 +30,17 @@ jobs:
         run: git config --global --add safe.directory $GITHUB_WORKSPACE
 
       - name: "Verify Branch Name"
-        uses: open-edge-platform/orch-ci/verify-branch-name@7221fef1cf3ce70185cbe8c3f53a85be4e7e7cbd # 0.1.48
+        uses: open-edge-platform/orch-ci/verify-branch-name@a389c296f4a6dd2ff9d976007fd386950ab99605 # 0.1.49
 
       - name: "Discover Changed Subfolders Inside 'apps'"
         id: discover-changes-apps
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@7221fef1cf3ce70185cbe8c3f53a85be4e7e7cbd # 0.1.48
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@a389c296f4a6dd2ff9d976007fd386950ab99605 # 0.1.49
         with:
           project_folder: "./apps"
 
       - name: "Discover Changed Subfolders Inside 'charts'"
         id: discover-changes-charts
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@7221fef1cf3ce70185cbe8c3f53a85be4e7e7cbd # 0.1.48
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@a389c296f4a6dd2ff9d976007fd386950ab99605 # 0.1.49
         with:
           project_folder: "./charts"
           
@@ -71,7 +71,7 @@ jobs:
       fail-fast: false
       matrix:
         project_folder: ${{ fromJson(needs.pre-checks.outputs.all_changed_projects) }}
-    uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@7221fef1cf3ce70185cbe8c3f53a85be4e7e7cbd # 0.1.48
+    uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@a389c296f4a6dd2ff9d976007fd386950ab99605 # 0.1.49
     with:
       project_folder: ${{ matrix.project_folder }}
       prefix_tag_separator: "-"
