@@ -31,13 +31,13 @@ jobs:
 
       - name: "Discover Changed Subfolders Inside 'apps'"
         id: discover-changes-apps
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@76700c2fb6d547733b9218d9638dca43f5296399 # 0.1.52
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@e4fa54613527cfaad83ba8b625fd845a4ab8409d # 0.1.53
         with:
           project_folder: "./apps"
 
       - name: "Discover Changed Subfolders Inside 'charts'"
         id: discover-changes-charts
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@76700c2fb6d547733b9218d9638dca43f5296399 # 0.1.52
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@e4fa54613527cfaad83ba8b625fd845a4ab8409d # 0.1.53
         with:
           project_folder: "./charts"
           
@@ -83,7 +83,7 @@ jobs:
       fail-fast: false
       matrix:
         project_folder: ${{ fromJson(needs.pre-checks.outputs.all_changed_projects) }}
-    uses: open-edge-platform/orch-ci/.github/workflows/post-merge.yml@76700c2fb6d547733b9218d9638dca43f5296399  # 0.1.52
+    uses: open-edge-platform/orch-ci/.github/workflows/post-merge.yml@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
     with:
       project_folder: ${{ matrix.project_folder }}
       prefix_tag_separator: "-"
