@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: (C) 2025 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
-
+---
 name: Pre-Merge CI Pipeline
 
 on:
@@ -21,7 +21,7 @@ jobs:
       all_changed_projects: ${{ steps.merge-changed-projects.outputs.all_changed_projects }}
     steps:
       - name: "Check out repository code"
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -30,20 +30,20 @@ jobs:
         run: git config --global --add safe.directory $GITHUB_WORKSPACE
 
       - name: "Verify Branch Name"
-        uses: open-edge-platform/orch-ci/verify-branch-name@e4fa54613527cfaad83ba8b625fd845a4ab8409d # 0.1.53
+        uses: open-edge-platform/orch-ci/verify-branch-name@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
 
       - name: "Discover Changed Subfolders Inside 'apps'"
         id: discover-changes-apps
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@e4fa54613527cfaad83ba8b625fd845a4ab8409d # 0.1.53
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
         with:
           project_folder: "./apps"
 
       - name: "Discover Changed Subfolders Inside 'charts'"
         id: discover-changes-charts
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@e4fa54613527cfaad83ba8b625fd845a4ab8409d # 0.1.53
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
         with:
           project_folder: "./charts"
-          
+
       - name: "Merge Changed Subfolders"
         id: merge-changed-projects
         env:
@@ -71,7 +71,7 @@ jobs:
       fail-fast: false
       matrix:
         project_folder: ${{ fromJson(needs.pre-checks.outputs.all_changed_projects) }}
-    uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@e4fa54613527cfaad83ba8b625fd845a4ab8409d # 0.1.53
+    uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@e4fa54613527cfaad83ba8b625fd845a4ab8409d  # 0.1.53
     with:
       project_folder: ${{ matrix.project_folder }}
       prefix_tag_separator: "-"
