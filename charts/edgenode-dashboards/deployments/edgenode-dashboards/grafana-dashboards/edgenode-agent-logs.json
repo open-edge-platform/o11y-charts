@@ -330,28 +330,8 @@
           },
           {
             "selected": false,
-            "text": "INBM",
-            "value": "INBM"
-          },
-          {
-            "selected": false,
-            "text": "INBM Dispatcher",
-            "value": "INBM_Dispatcher"
-          },
-          {
-            "selected": false,
-            "text": "INBM Configuration",
-            "value": "INBM_Configuration"
-          },
-          {
-            "selected": false,
-            "text": "INBM Diagnostic",
-            "value": "INBM_Diagnostic"
-          },
-          {
-            "selected": false,
-            "text": "INBM Telemetry",
-            "value": "INBM_Telemetry"
+            "text": "INBD",
+            "value": "INBD"
           },
           {
             "selected": false,
@@ -359,7 +339,7 @@
             "value": "INBM_Update_Status"
           }
         ],
-        "query": "Cluster Agent : ClusterAgent, Hardware Agent : HardwareAgent, Node Agent : NodeAgent, OpenTelemetry Collector : OpenTelemetry_Collector, Platform Update Agent : PlatformUpdateAgent, Platform Telemetry Agent : Platform_Telemetry_Agent, Platform Manageability Agent : Platform_Manageability_Agent, Telegraf : Telegraf , Installer : installer, Apt Install History Logs : AptInstallLogs, INBM : INBM, INBM Dispatcher : INBM_Dispatcher, INBM Configuration : INBM_Configuration, INBM Diagnostic : INBM_Diagnostic, INBM Telemetry : INBM_Telemetry, INBM Update Status : INBM_Update_Status",
+        "query": "Cluster Agent : ClusterAgent, Hardware Agent : HardwareAgent, Node Agent : NodeAgent, OpenTelemetry Collector : OpenTelemetry_Collector, Platform Update Agent : PlatformUpdateAgent, Platform Telemetry Agent : Platform_Telemetry_Agent, Platform Manageability Agent : Platform_Manageability_Agent, Telegraf : Telegraf , Installer : installer, Apt Install History Logs : AptInstallLogs, INBD : INBD, INBM Update Status : INBM_Update_Status",
         "type": "custom"
       },
       {
