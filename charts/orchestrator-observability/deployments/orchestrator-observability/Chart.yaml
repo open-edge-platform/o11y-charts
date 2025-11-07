@@ -5,11 +5,11 @@ apiVersion: v2
 name: orchestrator-observability
 description: Orchestrator centralized observability
 type: application
-version: 0.5.6
-appVersion: 0.5.6
+version: 0.5.7
+appVersion: 0.5.7
 annotations:
-  revision: 1c180a61519ee9ec158aa38e0f54a27096bd4239
-  created: "2025-06-18T12:11:42Z"
+  revision: 42820b18ec04321c0e9331da655dc486fc191781
+  created: "2025-11-07T14:11:31Z"
 dependencies:
   - name: loki
     condition: import.loki.enabled
@@ -31,11 +31,11 @@ dependencies:
     condition: import.minio.enabled
   - name: mimir-distributed
     condition: import.mimir.enabled
-    version: "~5.7.0"
+    version: "6.0.3"
     repository: "https://grafana.github.io/helm-charts"
   - name: grafana
     alias: grafana
-    version: "9.2.2"
+    version: "10.1.4"
     repository: https://grafana.github.io/helm-charts
     condition: import.grafana.enabled
   - name: tempo
