@@ -521,8 +521,6 @@ loki:
       grpc_server_max_recv_msg_size: 104857600
     query_range:
       parallelise_shardable_queries: true
-    frontend:
-      max_outstanding_per_tenant: 2048
     query_scheduler:
       max_outstanding_requests_per_tenant: 2048
     querier:
@@ -865,8 +863,6 @@ mimir-distributed:
     structuredConfig:
       query_scheduler:
         max_outstanding_requests_per_tenant: 2048
-      frontend:
-        max_outstanding_per_tenant: 2048
       usage_stats:
         enabled: false
       distributor:
