@@ -5,11 +5,11 @@ apiVersion: v2
 name: edgenode-observability
 description: Edge Node Centralized Observability
 type: application
-version: 0.10.6
-appVersion: 0.10.6
+version: 0.10.7
+appVersion: 0.10.7
 annotations:
-  revision: 42820b18ec04321c0e9331da655dc486fc191781
-  created: "2025-11-07T14:11:16Z"
+  revision: 88556a5115416b669da7eb0eb2284a9a9830634a
+  created: "2025-11-07T14:40:45Z"
 dependencies:
   - name: minio
     alias: minio
@@ -22,7 +22,7 @@ dependencies:
     repository: "https://grafana.github.io/helm-charts"
   - name: loki
     condition: import.loki.enabled
-    version: "~6.30.1"
+    version: "6.46.0"
     repository: "https://grafana.github.io/helm-charts"
   - name: opentelemetry-operator
     condition: import.otel-operator.enabled
