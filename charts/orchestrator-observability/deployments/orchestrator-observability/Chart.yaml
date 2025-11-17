@@ -5,24 +5,24 @@ apiVersion: v2
 name: orchestrator-observability
 description: Orchestrator centralized observability
 type: application
-version: 0.5.8
-appVersion: 0.5.8
+version: 0.5.9
+appVersion: 0.5.9
 annotations:
-  revision: 62dc2e4f447725d25788de7b795d7987b91aa246
-  created: "2025-11-11T14:01:58Z"
+  revision: 22eef2cdee97b63f1f28817074cb19c3731993f2
+  created: "2025-11-17T16:11:21Z"
 dependencies:
   - name: loki
     condition: import.loki.enabled
-    version: "~6.30.1"
+    version: "6.46.0"
     repository: "https://grafana.github.io/helm-charts"
   - name: opentelemetry-collector
     alias: opentelemetry-collector-daemonset
     condition: import.otel.enabled
-    version: "~0.115.0"
+    version: "0.136.1"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: opentelemetry-collector
     condition: import.otel.enabled
-    version: "~0.115.0"
+    version: "0.136.1"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: minio
     alias: minio
