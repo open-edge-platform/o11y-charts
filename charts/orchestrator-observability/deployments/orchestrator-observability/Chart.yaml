@@ -5,15 +5,15 @@ apiVersion: v2
 name: orchestrator-observability
 description: Orchestrator centralized observability
 type: application
-version: 0.5.11
-appVersion: 0.5.11
+version: 0.5.12
+appVersion: 0.5.12
 annotations:
-  revision: 5310fee4e431dcdb3b7491da1998bc545cea1e72
-  created: "2025-11-17T18:27:44Z"
+  revision: 0fcfd4329f230430540716c82d13635f3b6bdeab
+  created: "2025-11-18T16:22:25Z"
 dependencies:
   - name: loki
     condition: import.loki.enabled
-    version: "6.46.0"
+    version: "6.41.1"
     repository: "https://grafana.github.io/helm-charts"
   - name: opentelemetry-collector
     alias: opentelemetry-collector-daemonset
