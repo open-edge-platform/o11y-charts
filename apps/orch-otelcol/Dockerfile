@@ -10,7 +10,7 @@ COPY . .
 RUN apk add --upgrade --no-cache curl=~8 git=~2 make=~4 bash=~5
 
 # Match with the version in builder.yaml
-ARG OTEL_VERSION=0.123.0
+ARG OTEL_VERSION=0.140.0
 RUN curl --proto '=https' --tlsv1.2 -fL -o ocb \
     https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${OTEL_VERSION}/ocb_${OTEL_VERSION}_linux_amd64 && \
     chmod +x ocb
