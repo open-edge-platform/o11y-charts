@@ -36,7 +36,7 @@ opentelemetry-collector:
   image:
     registry: registry-rs.edgeorchestration.intel.com/edge-orch
     repository: o11y/orch-otelcol
-    tag: 0.2.0
+    tag: 0.2.2
   command:
     name: otelcontribcol
   securityContext:
