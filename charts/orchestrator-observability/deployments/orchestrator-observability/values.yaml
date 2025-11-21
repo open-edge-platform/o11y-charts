@@ -650,7 +650,7 @@ grafana:
     registry: registry-rs.edgeorchestration.intel.com/edge-orch
     repository: o11y/grafana-proxy
     pullPolicy: IfNotPresent
-    tag: 0.5.0
+    tag: 0.5.1
     env:
       logLevel: info
       includeDeleted: true
