@@ -31,17 +31,17 @@ jobs:
         run: git config --global --add safe.directory $GITHUB_WORKSPACE
 
       - name: "Verify Branch Name"
-        uses: open-edge-platform/orch-ci/verify-branch-name@79c4381f9be567527d8782094317b0282493e45a  # 0.1.66
+        uses: open-edge-platform/orch-ci/verify-branch-name@592eafb7c84669729eb1adc610515bad61c3550b  # 0.1.67
 
       - name: "Discover Changed Subfolders Inside 'apps'"
         id: discover-changes-apps
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@79c4381f9be567527d8782094317b0282493e45a  # 0.1.66
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@592eafb7c84669729eb1adc610515bad61c3550b  # 0.1.67
         with:
           project_folder: "./apps"
 
       - name: "Discover Changed Subfolders Inside 'charts'"
         id: discover-changes-charts
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@79c4381f9be567527d8782094317b0282493e45a  # 0.1.66
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@592eafb7c84669729eb1adc610515bad61c3550b  # 0.1.67
         with:
           project_folder: "./charts"
 
