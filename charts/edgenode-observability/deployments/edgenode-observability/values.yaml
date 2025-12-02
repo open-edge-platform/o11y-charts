@@ -343,8 +343,8 @@ loki:
     limits_config:
       cardinality_limit: 100000
       deletion_mode: filter-and-delete
-      ingestion_burst_size_mb: 6
-      ingestion_rate_mb: 4
+      ingestion_burst_size_mb: 10
+      ingestion_rate_mb: 8
       max_cache_freshness_per_query: 10m
       max_entries_limit_per_query: 5000
       max_global_streams_per_user: 0
