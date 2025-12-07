@@ -69,6 +69,12 @@ opentelemetry-collector:
         headers:
           - action: upsert
             key: X-Scope-OrgID
+            from_context: project
+            default_value: edgenode-system
+      headers_setter/metrics:
+        headers:
+          - action: upsert
+            key: X-Scope-OrgID
             from_context: projectId
             default_value: edgenode-system
       health_check:
@@ -178,6 +184,14 @@ opentelemetry-collector:
             key: projectId
             from_attribute: projectId
 
+          # set project for logs
+          - action: insert
+            from_context: X-Scope-OrgId
+            key: project
+          - action: upsert
+            from_context: project
+            key: project
+
           - action: upsert
             key: healthcheck
             from_attribute: HealthCheck
@@ -186,9 +200,18 @@ opentelemetry-collector:
             value: host_guid, file_type, host, container_name, pod, namespace, source, healthcheck, projectId
 
       groupbyattrs/project:
+        keys: [ project ]
+
+      groupbyattrs/projectId:
         keys: [ projectId ]
 
       context/project:
+        actions:
+          - action: upsert
+            key: project
+            from_attribute: project
+
+      context/projectId:
         actions:
           - action: upsert
             key: projectId
@@ -196,7 +219,7 @@ opentelemetry-collector:
 
       batch:
         metadata_keys:
-          - projectId
+          - project
 
       batch/metrics:
         timeout: 2m
@@ -218,6 +241,7 @@ opentelemetry-collector:
       extensions:
         - health_check
         - headers_setter
+        - headers_setter/metrics
       pipelines:
         logs:
           exporters:
@@ -238,8 +262,8 @@ opentelemetry-collector:
             - prometheusremotewrite
           processors:
             - memory_limiter
-            - groupbyattrs/project
-            - context/project
+            - groupbyattrs/projectId
+            - context/projectId
             - transform/metrics/hostid
             - batch/metrics
           receivers:
@@ -257,7 +281,7 @@ opentelemetry-collector:
         resource_to_telemetry_conversion:
           enabled: true  # Convert resource attributes to metric labels
         auth:
-          authenticator: headers_setter
+          authenticator: headers_setter/metrics
 loki:
   test:
     enabled: false
