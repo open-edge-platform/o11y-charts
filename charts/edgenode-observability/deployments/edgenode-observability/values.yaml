@@ -133,6 +133,7 @@ opentelemetry-collector:
               - set(attributes["namespace"], attributes["kubernetes"]["namespace_name"])
               - set(attributes["container_name"], attributes["kubernetes"]["container_name"])
               - set(attributes["host"], attributes["kubernetes"]["host"])
+              - set(body, attributes["MESSAGE"])
       transform/metrics/hostid:
         error_mode: ignore
         metric_statements:
@@ -152,10 +153,7 @@ opentelemetry-collector:
         attributes:
           - action: insert
             key: loki.resource.labels
-            value: k8s.container.name, k8s.namespace.name, projectId
-          - action: insert
-            key: loki.format
-            value: json
+            value: k8s.container.name, k8s.namespace.name, pod, projectId
 
       attributes:
         actions:
@@ -191,6 +189,13 @@ opentelemetry-collector:
           - action: upsert
             from_context: project
             key: project
+
+          - action: insert
+            from_attribute: pod
+            key: pod
+          - action: upsert
+            from_attribute: pod
+            key: pod
 
           - action: upsert
             key: healthcheck
@@ -367,8 +372,8 @@ loki:
     limits_config:
       cardinality_limit: 100000
       deletion_mode: filter-and-delete
-      ingestion_burst_size_mb: 10
-      ingestion_rate_mb: 8
+      ingestion_burst_size_mb: 20
+      ingestion_rate_mb: 16
       max_cache_freshness_per_query: 10m
       max_entries_limit_per_query: 5000
       max_global_streams_per_user: 0
@@ -377,6 +382,34 @@ loki:
       max_label_value_length: 2048
       max_line_size: "256KB"
       max_query_parallelism: 32
+      otlp_config:
+        resource_attributes:
+          ignore_defaults: true
+        log_attributes:
+          - action: index_label
+            attributes:
+              - file_type
+          - action: index_label
+            attributes:
+              - healthcheck
+          - action: index_label
+            attributes:
+              - host
+          - action: index_label
+            attributes:
+              - host_guid
+          - action: index_label
+            attributes:
+              - projectId
+          - action: index_label
+            attributes:
+              - service_name
+          - action: index_label
+            attributes:
+              - source
+          - action: index_label
+            attributes:
+              - pod
       per_stream_rate_limit: "3MB"
       per_stream_rate_limit_burst: "15MB"
       reject_old_samples: true
