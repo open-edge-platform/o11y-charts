@@ -170,7 +170,7 @@
             "uid": "edgenode-loki"
           },
           "editorMode": "code",
-          "expr": "{healthcheck=~\"$file\", host_guid=\"$guid\",projectId=\"$projectId\"} |~ \"$search\" | json | line_format \"{{.body}}\" ",
+          "expr": "{healthcheck=~\"$file\", host_guid=\"$guid\",projectId=\"$projectId\"} |= \"$search\" ",
           "queryType": "range",
           "refId": "A"
         }
