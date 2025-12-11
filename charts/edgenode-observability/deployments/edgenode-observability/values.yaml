@@ -122,6 +122,7 @@ opentelemetry-collector:
               - attributes["kubernetes"] == nil
             statements:
               - set(attributes["file_type"], attributes["FileType"])
+              - set(body, attributes["MESSAGE"])
       transform/logs/kubernetes:
         error_mode: ignore
         log_statements:
