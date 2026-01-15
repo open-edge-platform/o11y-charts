@@ -288,6 +288,8 @@ opentelemetry-collector-daemonset:
             - prometheus
             - otlp
     exporters:
+      debug:
+          verbosity: detailed
       otlphttp/metrics:
         endpoint: "http://orchestrator-observability-mimir-gateway:8181/otlp"
         headers:
