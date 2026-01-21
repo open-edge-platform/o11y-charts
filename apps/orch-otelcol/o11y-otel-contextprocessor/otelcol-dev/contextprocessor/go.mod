@@ -1,6 +1,6 @@
 module github.com/jriguera/opentelemetry-collector-contrib/processor/contextprocessor
 
-go 1.24.6
+go 1.25.5
 
 require (
 	go.opentelemetry.io/collector/client v1.50.0
