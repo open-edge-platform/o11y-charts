@@ -3,7 +3,7 @@ module github.com/open-edge-platform/o11y-charts/apps/grafana-proxy
 go 1.25.5
 
 require (
-	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/open-edge-platform/o11y-tenant-controller v0.7.0
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/zap v1.27.1
