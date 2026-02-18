@@ -5,11 +5,11 @@ apiVersion: v2
 name: edgenode-observability
 description: Edge Node Centralized Observability
 type: application
-version: 0.10.18
-appVersion: 0.10.18
+version: 0.10.19
+appVersion: 0.10.19
 annotations:
-  revision: 7ff72ab77858e780bb138d0ed696f95e875d5da3
-  created: "2025-12-11T11:12:09Z"
+  revision: 998143e4488eef735dac4f84d3798fa9b4e59d97
+  created: "2026-02-18T14:19:52Z"
 dependencies:
   - name: minio
     alias: minio
@@ -18,11 +18,11 @@ dependencies:
     condition: import.minio.enabled
   - name: mimir-distributed
     condition: import.mimir.enabled
-    version: "6.0.3"
+    version: "6.0.5"
     repository: "https://grafana.github.io/helm-charts"
   - name: loki
     condition: import.loki.enabled
-    version: "6.46.0"
+    version: "6.53.0"
     repository: "https://grafana.github.io/helm-charts"
   - name: opentelemetry-operator
     condition: import.otel-operator.enabled
@@ -30,10 +30,10 @@ dependencies:
     version: "0.90.3"
   - name: opentelemetry-collector
     condition: import.otel.enabled
-    version: "0.136.1"
+    version: "0.145.0"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: grafana
     alias: grafana
-    version: "10.1.4"
-    repository: https://grafana.github.io/helm-charts
+    version: "11.1.7"
+    repository: "https://grafana-community.github.io/helm-charts"
     condition: import.grafana.enabled
