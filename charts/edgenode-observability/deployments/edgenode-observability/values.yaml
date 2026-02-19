@@ -24,7 +24,7 @@ opentelemetry-operator:
   manager:
     targetAllocatorImage:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
-      tag: v0.116.0
+      tag: v0.126.0
     securityContext:
       runAsNonRoot: true
       allowPrivilegesEscalation: false
@@ -36,7 +36,7 @@ opentelemetry-collector:
   image:
     registry: registry-rs.edgeorchestration.intel.com/edge-orch
     repository: o11y/orch-otelcol
-    tag: 0.2.2
+    tag: 0.2.3
   command:
     name: otelcontribcol
   securityContext:
@@ -588,7 +588,7 @@ grafana:
     registry: registry-rs.edgeorchestration.intel.com/edge-orch
     repository: o11y/grafana-proxy
     pullPolicy: IfNotPresent
-    tag: 0.5.1
+    tag: 0.5.2
     resources:
       requests:
         cpu: 10m
