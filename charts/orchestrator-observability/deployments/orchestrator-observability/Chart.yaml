@@ -13,7 +13,7 @@ annotations:
 dependencies:
   - name: loki
     condition: import.loki.enabled
-    version: "6.46.0"
+    version: "6.53.0"
     repository: "https://grafana.github.io/helm-charts"
   - name: opentelemetry-collector
     alias: opentelemetry-collector-daemonset
