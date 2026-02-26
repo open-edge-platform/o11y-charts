@@ -484,11 +484,11 @@ loki:
   minio:
     image:
       repository: quay.io/minio/minio
-      tag: RELEASE.2025-01-20T14-49-07Z
+      tag: RELEASE.2025-10-15T17-29-55Z
       pullPolicy: IfNotPresent
     mcImage:
       repository: quay.io/minio/mc
-      tag: RELEASE.2025-01-17T23-25-50Z
+      tag: RELEASE.2025-08-13T08-35-41Z
       pullPolicy: IfNotPresent
   loki:
     podSecurityContext:
@@ -806,11 +806,11 @@ mimir-distributed:
     # TODO: image and mcImage can be removed when minio https://github.com/grafana/mimir/blob/main/operations/helm/charts/mimir-distributed/Chart.yaml#L12 is updated to version > 5.4.0
     image:
       repository: quay.io/minio/minio
-      tag: RELEASE.2025-01-20T14-49-07Z
+      tag: RELEASE.2025-10-15T17-29-55Z
       pullPolicy: IfNotPresent
     mcImage:
       repository: quay.io/minio/mc
-      tag: RELEASE.2025-01-17T23-25-50Z
+      tag: RELEASE.2025-08-13T08-35-41Z
       pullPolicy: IfNotPresent
     makeBucketJob:
       exitCommand: "curl -X POST 127.0.0.1:15000/quitquitquit"
