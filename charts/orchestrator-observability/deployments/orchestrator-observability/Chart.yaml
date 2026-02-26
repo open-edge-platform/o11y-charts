@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 ---
 apiVersion: v2
@@ -8,8 +8,8 @@ type: application
 version: 0.5.16
 appVersion: 0.5.16
 annotations:
-  revision: 998143e4488eef735dac4f84d3798fa9b4e59d97
-  created: "2026-02-18T14:20:02Z"
+  revision: aefc668aabd57f8cb6c9560ac23ed5276dbfdd7e
+  created: "2026-02-26T14:39:36Z"
 dependencies:
   - name: loki
     condition: import.loki.enabled
@@ -18,11 +18,11 @@ dependencies:
   - name: opentelemetry-collector
     alias: opentelemetry-collector-daemonset
     condition: import.otel.enabled
-    version: "0.145.0"
+    version: "0.146.0"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: opentelemetry-collector
     condition: import.otel.enabled
-    version: "0.145.0"
+    version: "0.146.0"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: minio
     alias: minio
@@ -35,7 +35,7 @@ dependencies:
     repository: "https://grafana.github.io/helm-charts"
   - name: grafana
     alias: grafana
-    version: "11.1.7"
+    version: "11.2.0"
     repository: "https://grafana-community.github.io/helm-charts"
     condition: import.grafana.enabled
   - name: tempo
