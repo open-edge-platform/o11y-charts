@@ -1,15 +1,15 @@
-# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 ---
 apiVersion: v2
 name: edgenode-observability
 description: Edge Node Centralized Observability
 type: application
-version: 0.10.19
-appVersion: 0.10.19
+version: 0.10.20
+appVersion: 0.10.20
 annotations:
-  revision: 7ff72ab77858e780bb138d0ed696f95e875d5da3
-  created: "2025-12-11T11:12:09Z"
+  revision: ce61a54f38002bab2080a6256f66d9ec16189a3f
+  created: "2026-02-26T14:48:48Z"
 dependencies:
   - name: minio
     alias: minio
@@ -18,7 +18,7 @@ dependencies:
     condition: import.minio.enabled
   - name: mimir-distributed
     condition: import.mimir.enabled
-    version: "6.0.3"
+    version: "6.0.5"
     repository: "https://grafana.github.io/helm-charts"
   - name: loki
     condition: import.loki.enabled
@@ -27,13 +27,13 @@ dependencies:
   - name: opentelemetry-operator
     condition: import.otel-operator.enabled
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
-    version: "0.90.3"
+    version: "0.106.0"
   - name: opentelemetry-collector
     condition: import.otel.enabled
     version: "0.146.0"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: grafana
     alias: grafana
-    version: "10.1.4"
-    repository: https://grafana.github.io/helm-charts
+    version: "11.2.0"
+    repository: "https://grafana-community.github.io/helm-charts"
     condition: import.grafana.enabled

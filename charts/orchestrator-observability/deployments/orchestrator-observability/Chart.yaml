@@ -1,15 +1,15 @@
-# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 ---
 apiVersion: v2
 name: orchestrator-observability
 description: Orchestrator centralized observability
 type: application
-version: 0.5.16
-appVersion: 0.5.16
+version: 0.5.17
+appVersion: 0.5.17
 annotations:
-  revision: b46c39d857d5a06dc10aafaf9efb6daf2e94a061
-  created: "2025-11-21T11:14:39Z"
+  revision: ce61a54f38002bab2080a6256f66d9ec16189a3f
+  created: "2026-02-26T14:49:09Z"
 dependencies:
   - name: loki
     condition: import.loki.enabled
@@ -31,14 +31,14 @@ dependencies:
     condition: import.minio.enabled
   - name: mimir-distributed
     condition: import.mimir.enabled
-    version: "6.0.3"
+    version: "6.0.5"
     repository: "https://grafana.github.io/helm-charts"
   - name: grafana
     alias: grafana
-    version: "10.1.4"
-    repository: https://grafana.github.io/helm-charts
+    version: "11.2.0"
+    repository: "https://grafana-community.github.io/helm-charts"
     condition: import.grafana.enabled
   - name: tempo
     condition: import.tempo.enabled
-    version: "1.18.3"
-    repository: "https://grafana.github.io/helm-charts"
+    version: "1.26.4"
+    repository: "https://grafana-community.github.io/helm-charts"
