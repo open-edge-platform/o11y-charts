@@ -5,8 +5,8 @@ apiVersion: v2
 name: edgenode-observability
 description: Edge Node Centralized Observability
 type: application
-version: 0.10.20
-appVersion: 0.10.20
+version: 0.10.21
+appVersion: 0.10.21
 annotations:
   revision: ce61a54f38002bab2080a6256f66d9ec16189a3f
   created: "2026-02-26T14:48:48Z"
@@ -34,6 +34,6 @@ dependencies:
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: grafana
     alias: grafana
-    version: "11.2.0"
+    version: "11.1.8"
     repository: "https://grafana-community.github.io/helm-charts"
     condition: import.grafana.enabled
