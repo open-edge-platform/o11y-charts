@@ -5,8 +5,8 @@ apiVersion: v2
 name: orchestrator-observability
 description: Orchestrator centralized observability
 type: application
-version: 0.5.17
-appVersion: 0.5.17
+version: 0.5.18
+appVersion: 0.5.18
 annotations:
   revision: ce61a54f38002bab2080a6256f66d9ec16189a3f
   created: "2026-02-26T14:49:09Z"
@@ -35,7 +35,7 @@ dependencies:
     repository: "https://grafana.github.io/helm-charts"
   - name: grafana
     alias: grafana
-    version: "11.2.0"
+    version: "11.1.8"
     repository: "https://grafana-community.github.io/helm-charts"
     condition: import.grafana.enabled
   - name: tempo
