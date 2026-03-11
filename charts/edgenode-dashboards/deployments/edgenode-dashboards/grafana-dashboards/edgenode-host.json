@@ -1210,7 +1210,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "ceil(sum(100-cpu_usage_idle{host=\"$hostId\", cpu=\"cpu-total\",projectId=\"$projectId\"})*100)/100",
+          "expr": "round((1 - sum(mem_available{host=\"$hostId\", projectId=\"$projectId\"}) / sum(mem_total{host=\"$hostId\", projectId=\"$projectId\"})) * 100,0.01)",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
