@@ -170,7 +170,7 @@
             "uid": "edgenode-loki"
           },
           "editorMode": "code",
-          "expr": "{source=\"edgenode_provisioning\",file_type=\"$file_type\", projectId=\"$projectId\", host_guid=\"$guid\"} |~ \"$search\" ",
+          "expr": "{source=\"edgenode_provisioning\",file_type=\"$file_type\", projectId=\"$projectId\", host_guid=\"$guid\"} |= \"$search\" ",
           "queryType": "range",
           "refId": "A"
         }
@@ -205,8 +205,8 @@
       },
       {
         "current": {
-          "text": "uOS_logs",
-          "value": "uOS_logs"
+          "text": "uOS_bootkitLogs",
+          "value": "uOS_bootkitLogs"
         },
         "description": "Provisioning Log Type",
         "includeAll": false,
@@ -215,11 +215,6 @@
         "options": [
           {
             "selected": true,
-            "text": "uOS Logs",
-            "value": "uOS_logs"
-          },
-          {
-            "selected": false,
             "text": "uOS Bootkit",
             "value": "uOS_bootkitLogs"
           },
@@ -232,14 +227,9 @@
             "selected": false,
             "text": "ClientAuth",
             "value": "uOS_clientAuthLog"
-          },
-          {
-            "selected": false,
-            "text": "SysLog",
-            "value": "uOS_Syslog"
           }
         ],
-        "query": "uOS Logs : uOS_logs , uOS Bootkit : uOS_bootkitLogs , Caddy : uOS_caddyLogs , ClientAuth : uOS_clientAuthLog , SysLog : uOS_Syslog",
+        "query": "uOS Bootkit : uOS_bootkitLogs , Caddy : uOS_caddyLogs , ClientAuth : uOS_clientAuthLog",
         "type": "custom"
       },
       {

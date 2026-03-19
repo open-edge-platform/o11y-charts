@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 # This is to enable the dependencies.
@@ -24,7 +24,7 @@ opentelemetry-operator:
   manager:
     targetAllocatorImage:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
-      tag: v0.116.0
+      tag: v0.126.0
     securityContext:
       runAsNonRoot: true
       allowPrivilegesEscalation: false
@@ -36,7 +36,7 @@ opentelemetry-collector:
   image:
     registry: registry-rs.edgeorchestration.intel.com/edge-orch
     repository: o11y/orch-otelcol
-    tag: 0.2.0
+    tag: 0.2.4
   command:
     name: otelcontribcol
   securityContext:
@@ -66,6 +66,12 @@ opentelemetry-collector:
   alternateConfig:
     extensions:
       headers_setter:
+        headers:
+          - action: upsert
+            key: X-Scope-OrgID
+            from_context: project
+            default_value: edgenode-system
+      headers_setter/metrics:
         headers:
           - action: upsert
             key: X-Scope-OrgID
@@ -116,6 +122,7 @@ opentelemetry-collector:
               - attributes["kubernetes"] == nil
             statements:
               - set(attributes["file_type"], attributes["FileType"])
+              - set(body, attributes["MESSAGE"])
       transform/logs/kubernetes:
         error_mode: ignore
         log_statements:
@@ -127,6 +134,7 @@ opentelemetry-collector:
               - set(attributes["namespace"], attributes["kubernetes"]["namespace_name"])
               - set(attributes["container_name"], attributes["kubernetes"]["container_name"])
               - set(attributes["host"], attributes["kubernetes"]["host"])
+              - set(body, attributes["MESSAGE"])
       transform/metrics/hostid:
         error_mode: ignore
         metric_statements:
@@ -146,10 +154,7 @@ opentelemetry-collector:
         attributes:
           - action: insert
             key: loki.resource.labels
-            value: k8s.container.name, k8s.namespace.name, projectId
-          - action: insert
-            key: loki.format
-            value: json
+            value: k8s.container.name, k8s.namespace.name, pod, projectId
 
       attributes:
         actions:
@@ -178,6 +183,21 @@ opentelemetry-collector:
             key: projectId
             from_attribute: projectId
 
+          # set project for logs
+          - action: insert
+            from_context: X-Scope-OrgId
+            key: project
+          - action: upsert
+            from_context: project
+            key: project
+
+          - action: insert
+            from_attribute: pod
+            key: pod
+          - action: upsert
+            from_attribute: pod
+            key: pod
+
           - action: upsert
             key: healthcheck
             from_attribute: HealthCheck
@@ -186,9 +206,18 @@ opentelemetry-collector:
             value: host_guid, file_type, host, container_name, pod, namespace, source, healthcheck, projectId
 
       groupbyattrs/project:
+        keys: [ project ]
+
+      groupbyattrs/projectId:
         keys: [ projectId ]
 
       context/project:
+        actions:
+          - action: upsert
+            key: project
+            from_attribute: project
+
+      context/projectId:
         actions:
           - action: upsert
             key: projectId
@@ -196,7 +225,7 @@ opentelemetry-collector:
 
       batch:
         metadata_keys:
-          - projectId
+          - project
 
       batch/metrics:
         timeout: 2m
@@ -218,10 +247,11 @@ opentelemetry-collector:
       extensions:
         - health_check
         - headers_setter
+        - headers_setter/metrics
       pipelines:
         logs:
           exporters:
-            - loki
+            - otlphttp/logs
           processors:
             - memory_limiter
             - transform/logs/fluentbit
@@ -238,8 +268,8 @@ opentelemetry-collector:
             - prometheusremotewrite
           processors:
             - memory_limiter
-            - groupbyattrs/project
-            - context/project
+            - groupbyattrs/projectId
+            - context/projectId
             - transform/metrics/hostid
             - batch/metrics
           receivers:
@@ -248,11 +278,8 @@ opentelemetry-collector:
             - prometheus/adm-status
             - prometheus/observability-tenant-controller
     exporters:
-      loki:
-        endpoint: http://edgenode-observability-loki-gateway/loki/api/v1/push
-        default_labels_enabled:
-          exporter: false
-          job: true
+      otlphttp/logs:
+        endpoint: http://edgenode-observability-loki-gateway/otlp
         auth:
           authenticator: headers_setter
       prometheusremotewrite:
@@ -260,7 +287,7 @@ opentelemetry-collector:
         resource_to_telemetry_conversion:
           enabled: true  # Convert resource attributes to metric labels
         auth:
-          authenticator: headers_setter
+          authenticator: headers_setter/metrics
 loki:
   test:
     enabled: false
@@ -285,11 +312,11 @@ loki:
   minio:
     image:
       repository: quay.io/minio/minio
-      tag: RELEASE.2025-01-20T14-49-07Z
+      tag: RELEASE.2025-10-15T17-29-55Z
       pullPolicy: IfNotPresent
     mcImage:
       repository: quay.io/minio/mc
-      tag: RELEASE.2025-01-17T23-25-50Z
+      tag: RELEASE.2025-08-13T08-35-41Z
       pullPolicy: IfNotPresent
   loki:
     podSecurityContext:
@@ -315,7 +342,6 @@ loki:
       grpc_server_max_recv_msg_size: 104857600
       grpc_server_max_send_msg_size: 104857600
     frontend:
-      max_outstanding_per_tenant: 2048
       grpc_client_config:
         grpc_compression: snappy
     frontend_worker:
@@ -347,8 +373,8 @@ loki:
     limits_config:
       cardinality_limit: 100000
       deletion_mode: filter-and-delete
-      ingestion_burst_size_mb: 6
-      ingestion_rate_mb: 4
+      ingestion_burst_size_mb: 20
+      ingestion_rate_mb: 16
       max_cache_freshness_per_query: 10m
       max_entries_limit_per_query: 5000
       max_global_streams_per_user: 0
@@ -357,6 +383,34 @@ loki:
       max_label_value_length: 2048
       max_line_size: "256KB"
       max_query_parallelism: 32
+      otlp_config:
+        resource_attributes:
+          ignore_defaults: true
+        log_attributes:
+          - action: index_label
+            attributes:
+              - file_type
+          - action: index_label
+            attributes:
+              - healthcheck
+          - action: index_label
+            attributes:
+              - host
+          - action: index_label
+            attributes:
+              - host_guid
+          - action: index_label
+            attributes:
+              - projectId
+          - action: index_label
+            attributes:
+              - service_name
+          - action: index_label
+            attributes:
+              - source
+          - action: index_label
+            attributes:
+              - pod
       per_stream_rate_limit: "3MB"
       per_stream_rate_limit_burst: "15MB"
       reject_old_samples: true
@@ -534,7 +588,7 @@ grafana:
     registry: registry-rs.edgeorchestration.intel.com/edge-orch
     repository: o11y/grafana-proxy
     pullPolicy: IfNotPresent
-    tag: 0.5.0
+    tag: 0.5.3
     resources:
       requests:
         cpu: 10m
@@ -690,11 +744,11 @@ mimir-distributed:
     # https://github.com/grafana/mimir/blob/main/operations/helm/charts/mimir-distributed/Chart.yaml#L12 is updated to version > 5.4.0
     image:
       repository: quay.io/minio/minio
-      tag: RELEASE.2025-01-20T14-49-07Z
+      tag: RELEASE.2025-10-15T17-29-55Z
       pullPolicy: IfNotPresent
     mcImage:
       repository: quay.io/minio/mc
-      tag: RELEASE.2025-01-17T23-25-50Z
+      tag: RELEASE.2025-08-13T08-35-41Z
       pullPolicy: IfNotPresent
     makeBucketJob:
       exitCommand: "curl -X POST 127.0.0.1:15000/quitquitquit"
@@ -756,7 +810,6 @@ mimir-distributed:
         grpc_client_config:
           grpc_compression: snappy
       frontend:
-        max_outstanding_per_tenant: 4096
         grpc_client_config:
           grpc_compression: snappy
       frontend_worker:

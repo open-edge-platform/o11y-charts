@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Building environment
-FROM golang:1.24.4-alpine@sha256:68932fa6d4d4059845c8f40ad7e654e626f3ebd3706eef7846f319293ab5cb7a AS build
+FROM golang:1.25.7-alpine AS build
 
 WORKDIR /workspace/apps/grafana-proxy
 
@@ -13,7 +13,10 @@ COPY common.mk /workspace/
 
 RUN make build
 
-FROM alpine:3.22@sha256:8a1f59ffb675680d47db6337b49d22281a139e9d709335b492be023728e11715
+FROM alpine:3.23@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
+
+# Upgrade zlib to fix CVE-2026-22184
+RUN apk add --upgrade --no-cache "zlib>=1.3.2-r0"
 
 COPY --from=build /workspace/apps/grafana-proxy/build/grafana-proxy /grafana-proxy
 

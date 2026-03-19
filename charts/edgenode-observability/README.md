@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 
 This stack is intended for handling metrics and logs originating either from the Edge Nodes or from the Edge Orchestrator services that expose data about the Edge Nodes.
 
-Key components of this centralized observability stack are:
+Key components of this centralised observability stack are:
 
 - **Grafana UI** - frontend
 - **Grafana Mimir** - metrics backend

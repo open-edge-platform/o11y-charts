@@ -183,7 +183,7 @@
             "uid": "edgenode-loki"
           },
           "editorMode": "code",
-          "expr": "{host_guid=\"$guid\", namespace=\"$namespace\", pod=~\"$pod\",projectId=\"$projectId\", source=~\"edgenode_container_logs|edgenode_application_logs\"} |~ \"$search\"",
+          "expr": "{host_guid=\"$guid\", namespace=\"$namespace\", pod=~\"$pod\",projectId=\"$projectId\", source=~\"edgenode_container_logs|edgenode_application_logs\"} |= \"$search\" ",
           "hide": false,
           "queryType": "range",
           "refId": "A"

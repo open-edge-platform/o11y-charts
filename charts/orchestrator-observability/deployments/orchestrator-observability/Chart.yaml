@@ -1,28 +1,28 @@
-# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 ---
 apiVersion: v2
 name: orchestrator-observability
 description: Orchestrator centralized observability
 type: application
-version: 0.5.4
-appVersion: 0.5.4
+version: 0.5.19
+appVersion: 0.5.19
 annotations:
-  revision: e3c23e2bc3f5c4c0b3e81d37c5c8a4778a117aff
-  created: "2025-06-13T11:34:15Z"
+  revision: ce61a54f38002bab2080a6256f66d9ec16189a3f
+  created: "2026-02-26T14:49:09Z"
 dependencies:
   - name: loki
     condition: import.loki.enabled
-    version: "~6.30.1"
+    version: "6.53.0"
     repository: "https://grafana.github.io/helm-charts"
   - name: opentelemetry-collector
     alias: opentelemetry-collector-daemonset
     condition: import.otel.enabled
-    version: "~0.126.0"
+    version: "0.146.0"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: opentelemetry-collector
     condition: import.otel.enabled
-    version: "~0.126.0"
+    version: "0.146.0"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
   - name: minio
     alias: minio
@@ -31,14 +31,14 @@ dependencies:
     condition: import.minio.enabled
   - name: mimir-distributed
     condition: import.mimir.enabled
-    version: "~5.7.0"
+    version: "6.0.5"
     repository: "https://grafana.github.io/helm-charts"
   - name: grafana
     alias: grafana
-    version: "9.2.2"
-    repository: https://grafana.github.io/helm-charts
+    version: "11.1.8"
+    repository: "https://grafana-community.github.io/helm-charts"
     condition: import.grafana.enabled
   - name: tempo
     condition: import.tempo.enabled
-    version: "1.18.3"
-    repository: "https://grafana.github.io/helm-charts"
+    version: "1.26.4"
+    repository: "https://grafana-community.github.io/helm-charts"

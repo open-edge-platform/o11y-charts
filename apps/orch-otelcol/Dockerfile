@@ -1,7 +1,7 @@
-# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-FROM golang:1.24.4-alpine@sha256:68932fa6d4d4059845c8f40ad7e654e626f3ebd3706eef7846f319293ab5cb7a AS builder
+FROM golang:1.25.7-alpine AS builder
 
 WORKDIR /opt/
 
@@ -10,14 +10,17 @@ COPY . .
 RUN apk add --upgrade --no-cache curl=~8 git=~2 make=~4 bash=~5
 
 # Match with the version in builder.yaml
-ARG OTEL_VERSION=0.123.0
+ARG OTEL_VERSION=0.146.0
 RUN curl --proto '=https' --tlsv1.2 -fL -o ocb \
     https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${OTEL_VERSION}/ocb_${OTEL_VERSION}_linux_amd64 && \
     chmod +x ocb
 
 RUN ./ocb --config builder.yaml
 
-FROM alpine:3.22@sha256:8a1f59ffb675680d47db6337b49d22281a139e9d709335b492be023728e11715
+FROM alpine:3.23@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
+
+# Upgrade zlib to fix CVE-2026-22184
+RUN apk add --upgrade --no-cache "zlib>=1.3.2-r0"
 
 COPY --from=builder /opt/otelcol/otelcontribcol /otelcontribcol
 

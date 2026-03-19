@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 # This is to enable the dependencies.
@@ -91,7 +91,7 @@ opentelemetry-operator:
   manager:
     targetAllocatorImage:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
-      tag: v0.116.0
+      tag: v0.126.0
     securityContext:
       runAsNonRoot: true
       allowPrivilegesEscalation: false
@@ -486,11 +486,11 @@ loki:
   minio:
     image:
       repository: quay.io/minio/minio
-      tag: RELEASE.2025-01-20T14-49-07Z
+      tag: RELEASE.2025-10-15T17-29-55Z
       pullPolicy: IfNotPresent
     mcImage:
       repository: quay.io/minio/mc
-      tag: RELEASE.2025-01-17T23-25-50Z
+      tag: RELEASE.2025-08-13T08-35-41Z
       pullPolicy: IfNotPresent
   loki:
     podSecurityContext:
@@ -520,8 +520,6 @@ loki:
       grpc_server_max_recv_msg_size: 104857600
     query_range:
       parallelise_shardable_queries: true
-    frontend:
-      max_outstanding_per_tenant: 2048
     query_scheduler:
       max_outstanding_requests_per_tenant: 2048
     querier:
@@ -654,7 +652,7 @@ grafana:
     registry: registry-rs.edgeorchestration.intel.com/edge-orch
     repository: o11y/grafana-proxy
     pullPolicy: IfNotPresent
-    tag: 0.5.0
+    tag: 0.5.3
     env:
       logLevel: info
       includeDeleted: true
@@ -810,11 +808,11 @@ mimir-distributed:
     # TODO: image and mcImage can be removed when minio https://github.com/grafana/mimir/blob/main/operations/helm/charts/mimir-distributed/Chart.yaml#L12 is updated to version > 5.4.0
     image:
       repository: quay.io/minio/minio
-      tag: RELEASE.2025-01-20T14-49-07Z
+      tag: RELEASE.2025-10-15T17-29-55Z
       pullPolicy: IfNotPresent
     mcImage:
       repository: quay.io/minio/mc
-      tag: RELEASE.2025-01-17T23-25-50Z
+      tag: RELEASE.2025-08-13T08-35-41Z
       pullPolicy: IfNotPresent
     makeBucketJob:
       exitCommand: "curl -X POST 127.0.0.1:15000/quitquitquit"
@@ -864,8 +862,6 @@ mimir-distributed:
     structuredConfig:
       query_scheduler:
         max_outstanding_requests_per_tenant: 2048
-      frontend:
-        max_outstanding_per_tenant: 2048
       usage_stats:
         enabled: false
       distributor:

@@ -2600,7 +2600,7 @@
                 "uid": "edgenode-mimir"
               },
               "editorMode": "code",
-              "expr": "-rate(net_bytes_recv{host=\"$hostId\",interface!~\"(cali.+|lo)\",projectId=\"$projectId\"}[$__range])",
+              "expr": "rate(net_bytes_recv{host=\"$hostId\",interface!~\"(cali.+|lo)\",projectId=\"$projectId\"}[$__range])",
               "instant": false,
               "interval": "",
               "legendFormat": "received by the {{interface}}",
