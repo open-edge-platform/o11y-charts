@@ -4,7 +4,7 @@ go 1.25.7
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
-	github.com/open-edge-platform/o11y-tenant-controller v0.7.1
+	github.com/open-edge-platform/o11y-tenant-controller v0.7.2
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/zap v1.27.1
 	google.golang.org/grpc v1.79.3
@@ -17,7 +17,7 @@ require (
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260128011058-8636f8732409 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
