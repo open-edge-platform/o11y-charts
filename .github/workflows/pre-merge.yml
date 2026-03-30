@@ -72,7 +72,7 @@ jobs:
       fail-fast: false
       matrix:
         project_folder: ${{ fromJson(needs.pre-checks.outputs.all_changed_projects) }}
-    uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@7bf1c1c43a9903b2a34f21d7ed70a34be781d75a  # 2026.0.17
+    uses: open-edge-platform/orch-ci/.github/workflows/pre-merge.yml@d032a6f118957b4470e8e8aef22399fb59f412de  # 2026.0.17
     with:
       project_folder: ${{ matrix.project_folder }}
       prefix_tag_separator: "-"
