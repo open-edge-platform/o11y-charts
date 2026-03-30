@@ -32,13 +32,13 @@ jobs:
 
       - name: "Discover Changed Subfolders Inside 'apps'"
         id: discover-changes-apps
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@b5930c48c1fcdb6b34ffbcd465cff96dabfbde70  # 2026.0.17
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@d40dfda9598df896aa20cb1dc2c950d6444e8fa7  # 2026.0.19
         with:
           project_folder: "./apps"
 
       - name: "Discover Changed Subfolders Inside 'charts'"
         id: discover-changes-charts
-        uses: open-edge-platform/orch-ci/discover-changed-subfolders@b5930c48c1fcdb6b34ffbcd465cff96dabfbde70  # 2026.0.17
+        uses: open-edge-platform/orch-ci/discover-changed-subfolders@d40dfda9598df896aa20cb1dc2c950d6444e8fa7  # 2026.0.19
         with:
           project_folder: "./charts"
 
