@@ -8,8 +8,8 @@ type: application
 version: 0.5.20
 appVersion: 0.5.20
 annotations:
-  revision: ce61a54f38002bab2080a6256f66d9ec16189a3f
-  created: "2026-02-26T14:49:09Z"
+  revision: f42659c2c5cbf1675b5b017fa3d1b0f1a4aac233
+  created: "2026-04-01T13:36:53Z"
 dependencies:
   - name: loki
     condition: import.loki.enabled
