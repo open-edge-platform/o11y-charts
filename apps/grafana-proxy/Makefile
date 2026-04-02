@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 # Shell config variable
@@ -9,7 +9,7 @@ GIT_TAG_PREFIX  := apps/grafana-proxy-v
 
 GOCMD           := CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go
 GOCMD_TEST      := CGO_ENABLED=1 GOARCH=amd64 GOOS=linux go
-GOEXTRAFLAGS    :=-trimpath -gcflags="all=-spectre=all -N -l" -asmflags="all=-spectre=all" -ldflags="all=-s -w -X main.version=$(shell cat ./VERSION)"
+GOEXTRAFLAGS    :=-trimpath -gcflags="all=-spectre=all -N -l" -asmflags="-spectre=all" -ldflags="all=-s -w -X main.version=$(shell cat ./VERSION)"
 
 .DEFAULT_GOAL   := help
 .PHONY: build
