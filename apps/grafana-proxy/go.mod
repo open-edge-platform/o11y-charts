@@ -7,7 +7,7 @@ require (
 	github.com/open-edge-platform/o11y-tenant-controller v0.7.3
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/zap v1.27.1
-	google.golang.org/grpc v1.79.3
+	google.golang.org/grpc v1.80.0
 )
 
 require (
