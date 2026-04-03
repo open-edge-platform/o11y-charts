@@ -1,9 +1,9 @@
-golang 1.24.2
-golangci-lint 2.1.2
+golang 1.26.1
+golangci-lint 2.9.0
 jq 1.7.1
 hadolint 2.12.0
-kind 0.26.0
-markdownlint-cli2 0.17.2
+kind 0.30.0
+markdownlint-cli2 0.18.1
 pipx 1.7.1
 shellcheck 0.10.0
 yamllint 1.35.1
