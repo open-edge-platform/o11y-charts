@@ -1,20 +1,18 @@
-# SPDX-FileCopyrightText: (C) 2025 Intel Corporation
+# SPDX-FileCopyrightText: (C) 2026 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
 ---
 version: 2
 updates:
   - package-ecosystem: "gomod"
-    directories:
-      - "/apps/grafana-proxy"
+    directory: "/apps/grafana-proxy"  # Changed from "directories" to "directory"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
     commit-message:
       prefix: "[gomod] "
   - package-ecosystem: "gomod"
-    directories:
-      - "/apps/orch-otelcol/o11y-otel-contextprocessor/otelcol-dev/contextprocessor"
+    directory: "/apps/orch-otelcol/o11y-otel-contextprocessor/otelcol-dev/contextprocessor"  # Changed from "directories" to "directory"
     schedule:
       interval: daily
     groups:
@@ -31,9 +29,14 @@ updates:
     commit-message:
       prefix: "[gha] "
   - package-ecosystem: "docker"
-    directories:
-      - "/apps/grafana-proxy"
-      - "/apps/orch-otelcol"
+    directory: "/apps/grafana-proxy"  # Changed from "directories" to "directory" and split into separate blocks
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "[docker] "
+  - package-ecosystem: "docker"
+    directory: "/apps/orch-otelcol"  # Second docker directory as separate block
     schedule:
       interval: daily
     open-pull-requests-limit: 10
