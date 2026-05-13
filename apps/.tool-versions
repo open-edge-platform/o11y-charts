@@ -1,4 +1,4 @@
-golang 1.26.1
+golang 1.26.3
 golangci-lint 2.9.0
 jq 1.7.1
 hadolint 2.12.0
