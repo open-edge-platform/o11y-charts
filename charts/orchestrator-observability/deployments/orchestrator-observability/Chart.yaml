@@ -5,8 +5,8 @@ apiVersion: v2
 name: orchestrator-observability
 description: Orchestrator centralized observability
 type: application
-version: 0.5.20
-appVersion: 0.5.20
+version: 0.5.21
+appVersion: 0.5.21
 annotations:
   revision: f42659c2c5cbf1675b5b017fa3d1b0f1a4aac233
   created: "2026-04-01T13:36:53Z"
