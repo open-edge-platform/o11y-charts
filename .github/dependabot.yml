@@ -11,6 +11,8 @@ updates:
     open-pull-requests-limit: 10
     commit-message:
       prefix: "[gomod] "
+    cooldown:
+      default-days: 7
   - package-ecosystem: "gomod"
     directory: "/apps/orch-otelcol/o11y-otel-contextprocessor/otelcol-dev/contextprocessor"  # Changed from "directories" to "directory"
     schedule:
@@ -21,6 +23,8 @@ updates:
           - "*"  # In this case, it's good to bump dependencies in one PR, so group all updates into a single larger pull request.
     commit-message:
       prefix: "[gomod] "
+    cooldown:
+      default-days: 7
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -28,6 +32,8 @@ updates:
     open-pull-requests-limit: 10
     commit-message:
       prefix: "[gha] "
+    cooldown:
+      default-days: 7
   - package-ecosystem: "docker"
     directory: "/apps/grafana-proxy"  # Changed from "directories" to "directory" and split into separate blocks
     schedule:
@@ -35,6 +41,8 @@ updates:
     open-pull-requests-limit: 10
     commit-message:
       prefix: "[docker] "
+    cooldown:
+      default-days: 7
   - package-ecosystem: "docker"
     directory: "/apps/orch-otelcol"  # Second docker directory as separate block
     schedule:
@@ -42,3 +50,5 @@ updates:
     open-pull-requests-limit: 10
     commit-message:
       prefix: "[docker] "
+    cooldown:
+      default-days: 7
