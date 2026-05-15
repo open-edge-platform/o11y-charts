@@ -24,7 +24,7 @@ opentelemetry-operator:
   manager:
     targetAllocatorImage:
       repository: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator
-      tag: v0.126.0
+      tag: v0.151.0
     securityContext:
       runAsNonRoot: true
       allowPrivilegesEscalation: false
