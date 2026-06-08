@@ -4,7 +4,7 @@ go 1.26.3
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
-	github.com/open-edge-platform/o11y-tenant-controller v0.7.5
+	github.com/open-edge-platform/o11y-tenant-controller v0.7.6
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/zap v1.28.0
 	google.golang.org/grpc v1.81.1
